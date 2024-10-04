@@ -1,0 +1,616 @@
+# C++提高编程
+
+## vs快捷键
+
+```
+ctrl f5：启动项目
+
+ctrl k，
+	ctrl+d：格式化代码
+	ctrl+u：取消注释
+	
+ctrl alt l：显示Solution Explorer
+ctrl shift a：添加新类
+
+ctrl shift b：快速生成项目
+ctrl shift l：删除当前行
+Ctrl Shift Enter：在当前行下方插入空行
+```
+
+C++：向函数传递对象(对象、对象指针、对象引用)
+
+1. 使用对象作为函数参数，形参和实参是不同的对象，它们所占地址空间不同，因此，形参的改变，并不影响实参的值。
+2. 使用对象指针作为函数参数中，所谓"传址调用",就是在函数调用时使实参对象和形参对象的地址传递给函数，形参和实参都指向同一个地址值，此时在函数中对形参对象的修改将影响调用该函数的实参对象本身。
+3. 使用对象引用作为函数的参数，所谓"对象引用"，就是对实参对象换了个别名，实际上它们仍是同一个对象，所以，所谓的形参(别名对象)值的的改变，直接就是实参对象值的改变。
+
+## 1 模板
+
+### 1.1 模板的概念
+
+模板的特点：
+
+* 模板不可以直接使用，他只是一个框架
+* 模板的通用并不是万能的
+
+### 1.2 函数模板
+
+* C++另一种编程思想称为泛型编程，主要利用的技术就是模板
+* C++提供两种模板机制：函数模板和类模板
+
+#### 1.2.1 函数模板语法
+
+```C++
+template<typename T>
+函数声明或定义
+
+//template --声明创建模板
+//typename --表明其后面的符号是一种数据类型，可以用class代替
+//T --T是一个通用的数据类型
+```
+
+代码实例：
+
+```C++
+template<typename T>
+void mySwap(T &a, T &b) {
+	T temp = a;
+	a = b;
+	b = temp;
+}
+
+int main() {
+	int a = 10;
+	int b = 20;
+
+	double c = 1.4;
+	double d = 31.1;
+
+	//使用模板方式交换，两种方式使用函数模板
+	//1.自动类型推导
+	mySwap(a, b);
+	//2.显示指定类型
+	mySwap<double>(c, d);
+
+	cout << "a=" << a << endl;//a=20
+	cout << "b=" << b << endl;//b=10
+
+	cout << "c=" << c << endl;//c=31.1
+	cout << "d=" << d << endl;//d=1.4
+}
+```
+
+注意：
+
+* 自动类型推导，必须推导出数据类型T，才可以使用
+* 模板必须要确定出T的数据类型，才可以使用
+
+#### 1.2.2 函数模板案例
+
+实现通用对数组进行排序的函数，规则：从大到小，算法：选择
+
+```c++
+template<typename T>
+void mySort(T arr[],int len) {
+	
+	for (int i = 0; i < len; i++) {
+		int max = i;//认定的最大值下标
+		for (int j = i + 1; j < len; j++) {
+			//认定的最大值比遍历的数值要小，说明j下标的元素才是真正的最大值
+			if (arr[max] < arr[j]) {
+				max = j;
+			}
+		}
+		if (max != i) {
+			//交换max和i元素
+			swap(arr[max], arr[i]);
+		}
+	}
+}
+
+//提供打印数组的模板
+template<class T>
+void printArray(T arr[], int len) {
+	for (int i = 0; i < len; i++) {
+		cout << arr[i] << " ";
+	}
+	cout << endl;
+}
+
+int main() {
+	int arrayInt[] = { 43,435,7,713,24,5 };
+	char arrayChar[] = "1m3bifa";
+	
+	int lenInt = sizeof(arrayInt) / sizeof(int);
+	int lenChar = sizeof(arrayChar) / sizeof(char);
+	mySort(arrayInt,lenInt);
+	mySort(arrayChar,lenChar);
+
+	printArray(arrayInt, lenInt);//713 435 43 24 7 5
+	printArray(arrayChar, lenChar);//m i f b a 3 1
+}
+```
+
+#### 1.2.3 普通函数与函数模板
+
+ 普通函数与函数模板区别：
+
+* 普通函数调用可以发生隐式类型转换
+* 函数模板用自动类型推导，不可以发生隐式类型转换
+* 普通函数用显示指定类型，可以发生隐式类型转换
+
+ 普通函数与函数模板调用规则：
+
+* 如果函数模板和普通函数都可以实现，优先调用普通函数
+* 可以通过空模板参数列表来强制调用函数模板
+* 函数模板也可以发生重载
+* 如果函数模板可以产生更好的匹配，优先调用函数模板
+
+#### 1.2.4 模板的局限性
+
+模板并不是万能的，有些特定数据类型，需要具体化方式做特殊实现
+
+提供模板的重载，可以为这些特定的类型提供具体化的模板
+
+```C++
+//利用具体化的person的版本实现代码，具体化优先调用
+template<> bool myCompare(Person& p1, Person& p2) {
+	if (p1.name == p2.name && p1.age == p2.age) {
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+```
+
+* 利用具体化模板，可以解决自定义类型的通用化
+* 学习模板并不是为了写模板，而是在STL能够运用系统提供的模板
+
+### 1.3 类模板
+
+#### 1.3.1 类模板语法
+
+类模板和函数模板语法类似，在声明模板template后面加类，此类称为类模板
+
+类模板和函数模板区别主要有两点：
+
+* 类模板没有自动类型推导的使用方式
+* 类模板在模板参数列表中可以有默认参数
+
+#### 1.3.2 类模板成员函数创建时机
+
+* 普通类中的成员函数一开始就可以创建
+* 类模板中的成员函数在调用时才创建
+
+```C++
+#include<iostream>
+using namespace std;
+
+class Person1 {
+public:
+	void showPerson1() {
+		cout << "person1 show" << endl;
+	}
+};
+
+class Person2 {
+public:
+	void showPerson1() {
+		cout << "person2 show" << endl;
+	}
+};
+
+template<class T>
+class MyClass {
+public:
+	T obj;
+
+	//类模板中的成员函数
+	void fun1() {
+		obj.showPerson1();
+	}
+
+	void fun2() {
+		obj.showPerson2();
+	}
+};
+
+void test01() {
+	MyClass<Person1> m;
+	m.fun1();
+	//m.fun2();//编译会出错
+}
+
+int main() {
+	test01();
+}
+```
+
+#### 1.3.3 类模板对象做函数参数
+
+三种传入方式：
+
+* 指定传入的类型 -- 直接显示对象的数据类型
+* 参数模型化        -- 将对象中的参数变为模板进行传递
+* 整个类模板化    -- 将这个对象类型，模板进行传递
+
+```C++
+#include<iostream>
+#include<string>
+using namespace std;
+
+
+template<class T1,class T2>
+class Person {
+public:
+	Person(T1 name, T2 age) {
+		this->m_Name = name;
+		this->m_age = age;
+	}
+
+	void show() {
+		cout << "姓名：" << this->m_Name << " 年龄：" << this->m_age << endl;
+	}
+
+	T1 m_Name;
+	T2 m_age;
+};
+
+//-指定传入的类型 -- 直接显示对象的数据类型
+void printPerson1(Person<string,int>&p) {
+	p.show();
+}
+void test01() {
+	Person<string, int>p{ "高鑫",111 };
+	printPerson1(p);
+}
+
+//- 参数模型化        -- 将对象中的参数变为模板进行传递
+template<class T1,class T2>
+void printPerson2(Person<T1,T2>& p) {
+	p.show();
+	cout << typeid(T1).name() << " " << typeid(T2).name() << endl;
+
+}
+void test02() {
+	Person<string, int>p{ "gaoxin",11 };
+	printPerson2(p);
+}
+//- 整个类模板化    -- 将这个对象类型，模板进行传递
+template <typename T>
+void printPerson3(T& p) {
+	p.show();
+	cout << "T的数据类型：" << typeid(T).name() << endl;
+
+}
+void test03() {
+	Person<string, int>p{ "高大王",1 };
+	printPerson3(p);
+}
+
+
+int main() {
+	//test01();
+	//test02();
+	test03();
+}
+```
+
+#### 1.3.4 类模板与继承
+
+当类模板碰到继承时，需要注意以下几点：
+
+* 当子类继承的父类是一个类模板时，子类在声明的时候，需指定出父类中T的类型
+* 如果不指定，编译器无法给出子类分配内存
+* 如果想灵活指出父类中的T的类型，子类也需变为类模板
+
+如果父类是类模板，子类需要指定出父类中T的数据类型 
+
+#### 1.3.5 类模板成员函数类外实现
+
+```C++
+#include<iostream>
+#include<string>
+using namespace std;
+
+template<class T1,class T2>
+class Person {
+public:
+	Person(T1 name, T2 age);
+	void showPerson();
+
+	T1 name;
+	T2 age;
+};
+
+//构造函数的类外实现
+template<class T1, class T2>
+Person<T1,T2>::Person(T1 name, T2 age) {
+	this->name = name;
+	this->age = age;
+}
+
+//成员函数的类外实现
+template<class T1, class T2>
+void Person<T1,T2>::showPerson() {
+	cout << "姓名：" << this->name << endl;
+	cout << "年龄：" << this->age << endl;
+}
+
+int main() {
+	Person<string, int> person("叶凡", 1100000);
+	person.showPerson();
+}
+```
+
+类模板中的成员函数类外实现时，需要加上模板参数列表
+
+#### 1.3.6. 类模板分文件编写
+
+问题：类模板中成员函数创建时机是在调用阶段，导致分文件编写时链接不到
+
+解决：
+
+* 直接包含.cpp源文件
+* 将声明和实现写在同一个文件中，并将后缀名改为.hpp，hpp是约定的名称，并不是强制（主流方法）
+
+#### 1.3.7 类模板与友元
+
+全局函数类内实现 - 直接在类内声明友元即可
+
+全局函数类外实现 - 需要提前让编译器知道全局函数的存在
+
+```C++
+#include<iostream>
+#include<string>
+using namespace std;
+
+//提前让编译器知道Person类存在
+template<class T1, class T2>
+class Person;
+
+//类外实现
+template<class T1, class T2>
+void printPerson2(Person<T1, T2> p) {
+	cout << "类外实现	姓名：" << p.m_Name << " 年龄：" << p.m_Age << endl;
+}
+
+template<class T1, class T2>
+class Person {
+	//全局函数 类内实现
+	friend void printPerson(Person<T1, T2> p) {
+		cout << "类内实现	姓名：" << p.m_Name << " 年龄：" << p.m_Age << endl;
+	}
+
+	//全局函数类外实现
+	friend void printPerson2<>(Person<T1, T2> p);
+
+public:
+	Person(T1 name, T2 age) {
+		this->m_Name = name;
+		this->m_Age = age;
+	}
+
+	void show() {
+		cout << "姓名：" << this->m_Name << " 年龄：" << this->m_Age << endl;
+	}
+private:
+	T1 m_Name;
+	T2 m_Age;
+};
+
+void test01() {
+	Person<string, int> p("tom", 20);
+	printPerson(p);
+}
+
+void test02() {
+	Person<string, int> p("jerry", 20);
+	printPerson2(p);
+}
+
+int main() {
+	test01();
+	test02();
+}
+```
+
+注：建议全局函数做类内实现，用法简单，而且编译器可以直接识别
+
+## 2 STL常用容器
+
+### 2.1 STL简介
+
+STL（标准模板库），从广义上分为容器、算法、迭代器，容器和算法之间通过迭代器进行无缝连接
+
+STL几乎所有的代码都采用了模板库或者模板函数
+
+STL六大组件：
+
+* 容器：各种数据结构，如vector、list、deque、set、map用来存放数据
+* 算法：各种常见的算法，如sort、find、copy、for_each等
+* 迭代器：扮演了容器与算法之间的胶合剂
+* 仿函数：行为类似函数，可用作算法的某种策略
+* 适配器：一种用来修饰容器或者仿函数或迭代器接口的函数
+* 空间配置器：负责空间的配置与管理
+
+容器总共分为两大类，一类是序列式容器，包括vector(连续存储),deque(双向队列),list(双向链表)，stack(栈)，queue(队列)，另一类是关联式容器，包括set,multiset,map,multimap.
+
+算法分为两类，质变算法是指运算过程中会更改区间内的元素的内容，例如拷贝、替换、删除等，非质变算法是指运算过程中不会更改区间的元素内容，例如查找、计数、遍历、寻找极值等
+
+迭代器提供一种方法，使之能够寻访某个容器所含的各个元素，而又无需暴露该容器的内部表示方式，每个容器都有专属的迭代器
+
+### 2.2 string容器
+
+string与char* 的区别：
+
+* `char*`是一个指针
+* string是一个类，列内部封装到`char*`，管理这个字符串，是一个`char*`型的容器
+
+```C++
+#include<iostream>
+#include<string>
+using namespace std;
+
+//string构造函数
+void test1() {
+	const char* str = "hello world";
+
+	string s1;//默认构造
+	string s2(str);
+	string s3(s2);
+	string s4(10, 'g');
+
+	cout << "s2= " << s2 << endl;
+	cout << "s3= " << s3 << endl;
+	cout << "s4= " << s4 << endl;
+}
+
+//string赋值操作
+void test2() {
+	string str1 = "hello";//char*字符串直接赋值
+	string str2 = str1;//拷贝赋值
+	string str3;
+	str3 = 'a';//字符赋值
+	string str4;
+	str4.assign("hello C++");//将括号里面的字符串赋值给str4
+	string str5;
+	str5.assign("java python C/C++", 5);
+	string str6;
+	str6.assign(str5);
+	string str7;
+	str7.assign(7, 'a');
+
+	cout << "str1=" << str1 << endl;
+	cout << "str2=" << str2 << endl;
+	cout << "str3=" << str3 << endl;
+	cout << "str4=" << str4 << endl;
+	cout << "str5=" << str5 << endl;
+	cout << "str6=" << str6 << endl;
+	cout << "str7=" << str7 << endl;
+}
+
+//字符串拼接
+void test3() {
+	string str1 = "我";
+	str1 += "是高鑫";
+	cout << "str1=" << str1 << endl;
+
+	string str2 = "I";
+	str2.append(" love ");
+	cout << "str2=" << str2 << endl;
+	str2.append("game abdfa", 4);
+	cout << "str2=" << str2 << endl;
+	str2.append(str1);
+	cout << "str2=" << str2 << endl;
+
+	str2.append(str1, 4, 4);//一个中文占两个位置
+	cout << "str2=" << str2 << endl;
+}
+
+//字符串查找和替代
+void test4() {
+	//1.查找
+	string str1 = "abcdefg";
+	//find  :从左往左找
+	cout<<"de在str1中的位置：" << str1.find("de") << endl;
+	cout<<"df在str1中的位置：" << int(str1.find("df")) << endl;//没有返回-1(用int接受时)
+	//rfind	:从右往左查找
+	str1.append(str1);
+	cout << "de在str1中的位置：" << str1.rfind("de") << endl;
+	cout << "df在str1中的位置：" << int(str1.rfind("df")) << endl;//没有返回-1(用int接受时)
+
+	//2.替换
+	string str2 = str1;
+	str2.replace(1, 3, "214314");//从一号位置其起，3个字符被替换
+	cout << "str2= " << str2 << endl;
+}
+
+//字符串比较
+void test5() {
+	//按照ASCⅡ码进行比较
+	string str1 = "gaoxin";
+	string str2 = "hanli";
+	if (str1 > str2) {
+		cout << str1 << "比" << str2 << "大" << endl;
+	}
+	else {
+		cout << str1 << "比" << str2 << "小" << endl;
+	}
+	cout << str1.compare(str1) << endl;//相等时返回0
+	cout << str1.compare(str2) << endl;//小于时返回-1
+	cout << str2.compare(str1) << endl;//大于时返回1
+}
+
+//字符存取
+void test6() {
+	string str = "hello";
+	cout << "str=" << str << endl;
+	//1.通过中括号访问单个字符
+	for (int i = 0; i < str.size(); i++) {
+		cout << str[i] << " ";
+	}
+	cout << endl;
+	//2.通过at方法访问单个字符
+	for (int i = 0; i < str.size(); i++) {
+		cout << str.at(i) << " ";
+	}
+	cout << endl;
+	//3.增强for
+	for (char c : str) {
+		cout << c << " ";
+	}
+	cout << endl;
+	
+	//修改单个字符
+	str[0] = 'x';
+	cout << "str=" << str << endl;
+}
+
+//字符串插入和删除
+void test7() {
+	string str = "C/C++ go";
+	//插入
+	str.insert(5, " java");
+	cout << "str = " << str << endl;
+	//删除
+	str.erase(11);
+	cout << "str = " << str;
+}
+
+//字串获取
+void test8() {
+	string str = "yefan";
+	string subStr = str.substr(1, 3);//从1位置起，截三个
+	cout << "substr = " << subStr << endl;
+}
+
+int main() {
+	test1();
+	cout << "========================" << endl;
+	test2();
+	cout << "========================" << endl;
+	test3();
+	cout << "========================" << endl;
+	test4();
+	cout << "========================" << endl;
+	test5();
+	cout << "========================" << endl;
+	test6();
+	cout << "========================" << endl;
+	test7();
+	cout << "========================" << endl;
+	test8();
+}
+```
+
+### 2.3 vector容器
+
+vector与数组类似，称为单端数组，区别：
+
+数组是静态空间，而vector可以动态扩展
+
+动态扩展：并不是在原空间之后续借新空间，而是找更大的内存空间，然后将原数组拷贝新空间，释放原空间
+
+vector的迭代器是支持随机访问的迭代器
