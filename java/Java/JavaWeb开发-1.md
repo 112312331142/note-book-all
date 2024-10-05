@@ -158,7 +158,7 @@ Vue声明周期的八个阶段：每触发一个生命周期事件，会自动�
 | beforeDestroy | 销毁前       |
 | destroyed     | 销毁后       |
 
-![72464376684](img\Vue生命周期.png)
+![72464376684](img/Vue生命周期.png)
 
 mounted：挂载完成，Vue初始化完成，HTML页面渲染成功
 
