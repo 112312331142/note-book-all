@@ -237,7 +237,7 @@ mybatis.configuration.log-impl=org.apache.ibatis.logging.stdout.StdOutImpl
 - 性能更高
 - 更安全（防止SQL注入）
 
-![img](img\%E9%A2%84%E7%BC%96%E8%AF%91SQL%E6%B5%81%E7%A8%8B.png)
+![img](img/%E9%A2%84%E7%BC%96%E8%AF%91SQL%E6%B5%81%E7%A8%8B.png)
 
 SQL注入是通过操作输入的数据来修改先定义好的SQL语句，以达到执行代码对服务器进行攻击的方法
 
@@ -1184,7 +1184,7 @@ excludePatterns("/login")：不需要拦截的资源
 
 #### 9.4.3 执行流程
 
-![](img\拦截器执行流程.png)
+![](img/拦截器执行流程.png)
 
 - 当我们打开浏览器来访问部署在web服务器当中的web应用时，此时我们所定义的过滤器会拦截到这次请求。拦截到这次请求之后，它会先执行放行前的逻辑，然后再执行放行操作。而由于我们当前是基于springboot开发的，所以放行之后是进入到了spring的环境当中，也就是要来访问我们所定义的controller当中的接口方法。
 - Tomcat并不识别所编写的Controller程序，但是它识别Servlet程序，所以在Spring的Web环境中提供了一个非常核心的Servlet：DispatcherServlet（前端控制器），所有请求都会先进行到DispatcherServlet，再将请求转给Controller。

@@ -379,7 +379,7 @@ Ioc容器根据bea所依赖的资源在容器中自动查找并注入到bean中�
 
 bean相关：
 
-![1629986510487](img\1629986510487.png)
+![1629986510487](img/1629986510487.png)
 
 其实整个配置中最常用的就两个属性==id==和==class==。
 
@@ -387,7 +387,7 @@ bean相关：
 
 依赖注入相关：
 
-![1629986848563](img\1629986848563.png)
+![1629986848563](img/1629986848563.png)
 
 ### 1.4 注解
 
@@ -747,13 +747,12 @@ execution(void com.itheima.dao.impl.BookDaoImpl.update())
   execution(* com.*.service.*.update*(*))
   ```
 
-- ..：单个连续的任意符号，可以统配任意层级的包，或任意类型、任意个数的参数![img](file:///D:/downFile/%E7%AC%94%E8%AE%B0%E6%9C%AC/java/SSM/Spring%E7%AC%94%E8%AE%B0/spring_day03/assets/1630254257628-1727247779932.png?lastModify=1727247687)
-
-- ​
+- ..：单个连续的任意符号，可以统配任意层级的包，或任意类型、任意个数的参数
 
   ```java
   execution(*com.chen..DeptService.*(..))
   ```
+
 
 
 - 根据业务需要，可以使用 且（&&）、或（||）、非（!） 来组合比较复杂的切入点表达式。
