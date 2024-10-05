@@ -614,3 +614,374 @@ vector与数组类似，称为单端数组，区别：
 动态扩展：并不是在原空间之后续借新空间，而是找更大的内存空间，然后将原数组拷贝新空间，释放原空间
 
 vector的迭代器是支持随机访问的迭代器
+
+```C++
+#include<iostream>
+#include<vector>
+using namespace std;
+
+//迭代器遍历
+void printVector(vector<int>& v) {
+	for (vector<int>::iterator it = v.begin(); it != v.end(); it++) {
+		cout << *it << " ";
+	}
+	cout << endl;
+}
+
+//vector容器构造
+void test1() {
+	vector<int>v1;//默认构造，无参构造
+	for (int i = 0; i < 10; i++) {
+		v1.push_back(int(rand() % 100));
+	}
+	printVector(v1);
+
+	//通过区间构造
+	vector<int> v2(v1.begin(), v1.end() - v1.size() / 2);
+	printVector(v2);
+
+	//n个elem构造
+	vector<int> v3(10, int(rand() % 100));
+	printVector(v3);
+
+	//拷贝构造
+	vector<int> v4(v3);
+	printVector(v4);
+}
+
+//vector赋值
+void test2() {
+	vector<int>v1;//默认构造，无参构造
+	for (int i = 0; i < 10; i++) {
+		v1.push_back(int(rand() % 100));
+	}
+	printVector(v1);
+	//operator =
+	vector<int> v2 = v1;
+	printVector(v2);
+	//assign
+	vector<int> v3;
+	v3.assign(v1.begin(), v1.end());
+	printVector(v3);
+	//assign n elem
+	vector<int> v4;
+	v4.assign(10, 100);
+	printVector(v4);
+}
+
+//vector容量和大小操作
+void test3() {
+	vector<int> v1;
+	for (int i = 0; i < 10; i++) {
+		v1.push_back(i);
+	}
+	printVector(v1);
+
+	if (v1.empty()) {
+		cout << "v1为空" << endl;
+	}
+	else {
+		cout << "v1不为空" << endl;
+		cout << "大小:" << v1.size() << " 容量：" << v1.capacity() << endl;
+	}
+
+	//重新指定大小
+	v1.resize(15,100);
+	printVector(v1);//如果重新指定的过长，默认0填充,第二个参数指定默认的填充值
+}
+
+//vector的插入和删除
+void test4() {
+	vector<int> v1;
+	//尾插法
+	v1.push_back(10);
+	v1.push_back(20);
+	v1.push_back(30);
+	v1.push_back(40);
+
+	printVector(v1);
+
+	v1.pop_back();
+	printVector(v1);
+
+	v1.insert(v1.begin()+2, 1000);//第一个参数必须是迭代器
+	v1.insert(v1.begin(), 100);
+	printVector(v1);
+
+	v1.insert(v1.begin(), 3, 10000);
+	printVector(v1);
+
+	v1.erase(v1.begin() + 1, v1.end() - 2);//删除两个迭代器之间的数
+	printVector(v1);
+
+	v1.clear();
+	printVector(v1);
+}
+
+//vector数据存取
+void test5() {
+	vector<int> v1;
+	for (int i = 0; i < 10; i++) {
+		v1.push_back(i);
+	}
+	int length = sizeof(v1) / sizeof(v1[1]);
+	cout << length << endl;
+	for (int i = 0; i < length; i++) {
+		cout << v1.at(i) << " ";
+	}
+	cout << endl;
+	for (vector<int>::iterator it = v1.begin(); it != v1.end(); it++) {
+		cout << *it << " ";
+	}
+	cout << endl;
+	for (int i : v1) {
+		cout << i << " ";
+	}
+	cout << endl;
+
+	cout << v1.front() << v1.back() << endl;
+}
+
+//vector容器互换
+void test6() {
+	//1,基础使用
+	vector<int> v1;
+	for (int i = 0; i < 10; i++) {
+		v1.push_back(i);
+	}
+	vector<int> v2;
+	for (int i = 0; i < 10; i++) {
+		v2.push_back(i*10);
+	}
+	v1.swap(v2);
+	cout << "vector1:";
+	printVector(v1);
+	cout << "vector2:";
+	printVector(v2);
+
+	//2.实际用途，巧用swap可以收缩内存空间
+	cout << "----------------------------" << endl;
+	vector<int> v3;
+	for (int i = 0; i < 100000; i++) {
+		v3.push_back(i);
+	}
+	cout << "v3的容量：" << v3.capacity() << endl;
+	cout << "v3的大小：" << v3.size() << endl;
+	v3.resize(3);
+	cout << "v3的容量：" << v3.capacity() << endl;//138225
+	cout << "v3的大小：" << v3.size() << endl;//3
+	vector<int>(v3).swap(v3);//匿名对象使用完就回收，可以收缩内存空间
+	cout << "v3的容量：" << v3.capacity() << endl;//3
+	cout << "v3的大小：" << v3.size() << endl;//3
+
+	cout << vector<int>(3).size() << endl;;
+	cout << vector<int>(3).capacity() << endl;;
+}
+
+//vector预留空间
+void test7() {
+	vector<int> v;
+
+	//利用reserve预留空间
+	v.reserve(100000);
+
+	int num = 0;//统计开辟的次数
+	int* p = NULL;
+	for (int i = 0; i < 100000; i++) {
+		v.push_back(i);
+		if (p != &v[0]) {
+			p = &v[0];
+			num++;
+		}
+	}
+	cout << "指针更改位置的次数:" << num << endl;//1
+
+}
+
+
+int main() {
+	test1();
+	cout << "=============================" << endl;
+	test2();
+	cout << "=============================" << endl;
+	test3();
+	cout << "=============================" << endl;
+	test4();
+	cout << "=============================" << endl;
+	test5();
+	cout << "=============================" << endl;
+	test6();
+	cout << "=============================" << endl;
+	test7();
+}
+```
+
+### 2.4 deque容器
+
+双端数组，可以对头端进行插入删除操作
+
+deque与vector的比较：
+
+* vector对于头部的插入删除效率低，数据量较大，效率越低
+* deque相对而言，对头部的插入删除速度会比vector快
+* vector访问元素时的速度会比deque快，这和两者内部实现有关
+
+deque内部工作原理：
+
+deque内部有个中控区，维护每段缓冲区中的内容，缓冲区中存放真实数据。中控器维护的是每个缓冲区的地址，使得使用deque时像一片连续的内存空间
+
+deque容器的迭代器也是支持随机访问
+
+```C++
+#include<iostream>
+#include<deque>
+#include<algorithm>
+using namespace std;
+
+void printDeque(const deque<int> &d) {//容器里的数据不能修改
+	for (deque<int>::const_iterator it = d.begin(); it != d.end(); it++) {
+		cout << *it << "\t";//only_read iterator
+	}
+	cout << endl;
+}
+
+//deque构造函数
+void test1() {
+	deque<int> d1;
+	for (int i = 0; i < 10; i++) {
+		d1.push_back(i);
+	}
+	printDeque(d1);
+
+	deque<int> d2(d1.begin(),d1.end());
+	printDeque(d1);
+
+	deque<int> d3(10, 100);
+	printDeque(d3);
+
+	deque<int> d4(d3);
+	printDeque(d4);
+
+}
+
+//deque赋值操作
+void test2() {
+	deque<int> d1;
+	for (int i = 0; i < 10; i++) {
+		d1.push_back(i);
+	}
+	printDeque(d1);
+
+	//operator=赋值
+	deque<int> d2 = d1;
+	printDeque(d2);
+
+	d1.assign(10,10);
+	printDeque(d1);
+}
+
+//deque大小操作,deque没有容量capacity的概念
+void test3() {
+	deque<int> d1;
+	for (int i = 0; i < 10; i++) {
+		d1.push_back(i);
+	}
+	printDeque(d1);
+
+	if (d1.empty()) {
+		cout << "d1为空" << endl;
+	}
+	else {
+		cout << "d1不为空" << endl;
+	}
+
+	//重新指定大小
+	d1.resize(15, 100);
+	printDeque(d1);
+}
+
+//deque的插入和删除,插入和删除提供的位置都是迭代器
+void test4() {
+	//1.两端插入操作
+	deque<int> d1;
+	d1.push_back(10);
+	d1.push_back(10);
+	d1.push_back(10);
+	d1.push_front(1);
+	d1.push_front(1);
+	d1.push_front(1);
+	printDeque(d1);
+	//2.指定位置操作
+	deque<int> d2;
+	d2.push_back(10);
+	d2.push_back(20);
+	d2.push_back(100);
+	d2.push_back(200);
+	d2.push_back(500);
+	printDeque(d2);
+
+	d2.insert(d2.begin(),1000);//insert插入
+	d2.insert(d2.end(), 2, 1000);
+	printDeque(d2);
+
+	//3.按照区间进行插入
+	deque<int> d3;
+	d3.push_back(1);
+	d3.push_back(1);
+	d3.push_back(1);
+	d3.insert(d3.begin(), d2.begin(), d2.end());//将d2区间的数据填充d3的初始位置
+	printDeque(d3);
+
+	//4.删除
+	deque<int> d4;
+	for (int i = 0; i < 10; i++) {
+		d4.push_back(i);
+	}
+	deque<int>::iterator it = d4.begin();
+	it++;
+	d4.erase(it,d4.end()-5);
+	printDeque(d4);
+}
+
+//deque数据存取
+void test5() {
+	deque<int> d1;
+	for (int i = 0; i < 10; i++) {
+		d1.push_back(i);
+	}
+	for (int i = 0; i < d1.size(); i++) {
+		cout << d1[i] << "\t";
+	}
+	cout << endl;
+}
+
+//deque排序操作
+void test6() {
+	deque<int> d1;
+	for (int i = 0; i < 10; i++) {
+		d1.push_back(rand()%100);
+	}
+	cout << "排序前：";
+	printDeque(d1);
+	//对于支持随机访问的迭代器的容器，都可以利用sort算法直接对其进行排序，vector容器也支持
+	sort(d1.begin(),d1.end());
+	cout << "排序后：";
+	printDeque(d1);
+	
+}
+
+int main() {
+	test1();
+	cout << "================================" << endl;
+	test2();
+	cout << "================================" << endl;
+	test3();
+	cout << "================================" << endl;
+	test4();
+	cout << "================================" << endl;
+	test5();
+	cout << "================================" << endl;
+	test6();
+}
+```
+
