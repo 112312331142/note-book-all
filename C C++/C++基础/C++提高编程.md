@@ -985,3 +985,228 @@ int main() {
 }
 ```
 
+### 2.5 stack容器
+
+概念：stack是一种先进后出的数据结构，它只有一个出口
+
+栈不允许有遍历行为
+
+常用接口：
+
+```C++
+#include<iostream>
+#include<stack>
+using namespace std;
+
+int main() {
+	//符合先进后出的数据结构
+	stack<int> stk;
+	stk.push(10);//入栈
+	stk.push(20);
+	stk.push(30);
+	stk.push(40);
+	cout << "栈的大小为：" << stk.size() << endl;//栈的大小为：4
+	//只要栈不为空，查看栈顶，并且执行出栈操作
+	while (!stk.empty()) {
+		//查看栈顶元素
+		cout<<"栈顶元素："<<stk.top()<< " ";//栈顶元素：40 栈顶元素：30 栈顶元素：20 栈顶元素：10
+		//出栈
+		stk.pop();
+	}
+	cout << endl;
+	cout << "栈的大小为：" << stk.size() << endl;//栈的大小为：0
+}
+
+```
+
+### 2.6 queue容器
+
+Queue是一种先进先出的数据结构，它有两个出口（队头出数据，队尾进数据）
+
+队列中只有队头和队尾可以让外界访问
+
+常用接口：
+
+```C++
+#include<iostream>
+#include<queue>
+#include<string>
+using namespace std;
+
+class Person {
+public:
+	string name;
+	int age;
+
+	Person(string name, int age) {
+		this->name = name;
+		this->age = age;
+	}
+};
+
+
+int main() {
+	Person p1("Tom", 12);
+	Person p2("Jack", 12);
+	Person p3("John", 12);
+	Person p4("Rog", 12);
+	queue<Person> q;
+	q.push(p1);
+	q.push(p2);
+	q.push(p3);
+	q.push(p4);
+
+	//判断只要队列不为空，查看队头，查看队尾，出队
+	while (!q.empty()) {
+		//查看队头和队尾
+		cout << "队头元素--姓名:" << q.front().name << "\t年龄:" << q.front().age << endl;
+		cout << "队尾元素--姓名:" << q.back().name << "\t年龄:" << q.back().age << endl;
+		//出队
+		q.pop();
+		//查看队列大小
+		cout << "当前队列大小：" << q.size() << endl;
+	}
+}
+```
+
+### 2.7 list容器
+
+#### 2.7.1 list基本概念
+
+组成：链表有一系列节点组成；节点由一个存储数据的元素的数据域，另一个是存储下一个节点地址的指针域
+
+功能：将数据进行链式存储
+
+优点：可以对任意的位置进行快速的插入或删除元素
+
+缺点：
+
+* 对于的容器的遍历速度，没有数组快
+* 占用的空间比数组大
+
+STL中的链表是一个双向循环链表
+
+由于链表的存储形式并不是连续的内存空间，因此链表ist中的迭代器只支持前移和后移，属于双向迭代器
+
+List还有一个重要性质：插入和删除并不会使原有的迭代器的失效
+
+所有不支持随机访问迭代器的容器，不可以用标准算法
+
+#### 2.7.2 list常用接口
+
+```C++
+#include<iostream>
+#include<list>
+using namespace std;
+
+void printList(const list<int> &l) {
+	for (list<int>::const_iterator it = l.begin(); it != l.end(); it++) {
+		cout << *it << "\t";
+	}
+	cout << endl;
+}
+
+//list构造函数
+void test1() {
+	list<int> l1;
+	l1.push_back(10);
+	l1.push_back(20);
+	l1.push_back(30);
+	l1.push_back(40);
+	printList(l1);
+	//区间方式构造
+	list<int> l2(++l1.begin(), l1.end());
+	printList(l2);
+}
+
+//list赋值和交换
+void test2() {
+	//1.赋值
+	list<int> l1;
+	l1.push_back(10);
+	l1.push_back(20);
+	l1.push_back(30);
+	l1.push_back(40);
+	printList(l1);
+	list<int> l2 = l1;
+	printList(l2);
+	list<int> l3;
+	l3.assign(l1.begin(), l1.end());
+	printList(l3);
+	//2.交换
+	list<int> l4;
+	l4.assign(10, 1000);
+	l1.swap(l4);
+	printList(l1);
+	printList(l4);
+}
+
+//list插入和删除
+void test3() {
+	list<int> l1;
+	l1.push_back(10);
+	l1.push_back(20);
+	l1.push_back(30);
+	l1.push_back(40);
+	//头插
+	l1.push_front(100);
+	l1.push_front(200);
+	l1.push_front(300);
+
+	list<int>::iterator it = l1.begin();
+	l1.insert(++it, 1000);//插入
+	printList(l1);
+
+	//移除
+	l1.remove(100);
+	printList(l1);
+}
+
+bool MyCompare(int v1, int v2) {
+	//降序，让第一个数大于第二个数
+	return v1 > v2;
+}
+
+//list反转和排序
+void test4() {
+	list<int> l1;
+	l1.push_back(rand() % 100);
+	l1.push_back(rand() % 100);
+	l1.push_back(rand() % 100);
+	l1.push_back(rand() % 100);
+	printList(l1);
+
+	//反转
+	l1.reverse();
+	printList(l1);
+
+	//排序
+	l1.sort();//默认规则从小到大
+	printList(l1);
+	l1.sort(MyCompare);//从大到小排序,高级排序要指定规则
+	printList(l1);
+}
+
+int main() {
+	test1();
+	cout << "==============================" << endl;
+	test2();
+	cout << "==============================" << endl;
+	test3();
+	cout << "==============================" << endl;
+	test4();
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1112,7 +1112,7 @@ public class RequestController {
 
 作用：将方法返回值直接响应，如果返回值类型是实体对象/集合，将会转换为JSON格式响应
 
-说明：@RestController=@Controller+@ResponseController
+说明：@RestController=@Controller+@ResponseBody
 
 在类上添加@RestController就相当于添加了@ResponseBody注解。
 
