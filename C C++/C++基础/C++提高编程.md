@@ -1198,15 +1198,430 @@ int main() {
 }
 ```
 
+### 2.8 set/multiset容器
+
+#### 2.8.1 set基础操作
+
+简介：所有排序都会在插入时自动被排序
+
+本质：set/multiset属于关联式容器，底层数据结构使用二叉树实现
+
+set不允许有重复元素出现，multiset允许
+
+```C++
+#include<iostream>
+#include<set>
+using namespace std;
+
+void printSet(const set<int>& s) {
+	for (set<int>::const_iterator it = s.begin(); it != s.end(); it++) {
+		cout << *it << " ";
+	}
+	cout << endl;
+}
+
+void printSet(const multiset<int>& s) {
+	for (multiset<int>::const_iterator it = s.begin(); it != s.end(); it++) {
+		cout << *it << " ";
+	}
+	cout << endl;
+}
+
+//set容器的构造和赋值
+void test1() {
+	set<int> s1;
+
+	pair<set<int>::iterator, bool> ret = s1.insert(2);//增加数据只有insert接口
+	s1.insert(1);//增加数据只有insert接口
+	s1.insert(3);//增加数据只有insert接口
+	s1.insert(4);//增加数据只有insert接口
+	s1.insert(4);//增加数据只有insert接口
+	printSet(s1);//1 2 3 4 在插入时会自动排序，且不允许有重复元素
+
+	//第一个值是该数所在位置的迭代器，第二个数显示插入失败还是成功
+	cout << *ret.first <<" "<< ret.second << endl;
+
+	set<int> s2(s1);//拷贝构造
+	printSet(s2);
+}
+
+//set的大小和交换
+void test2() {
+	set<int> s1;
+
+	s1.insert(2);
+	s1.insert(1);
+	s1.insert(3);
+	s1.insert(4);
+	s1.insert(4);
+	cout << s1.size() << endl;
+}
+
+//set的插入和删除
+void test3() {
+	set<int> s1;
+
+	s1.insert(2);
+	s1.insert(1);
+	s1.insert(3);
+	s1.insert(4);
+
+	s1.erase(s1.begin(),--s1.end());
+	printSet(s1);//4
+}
+
+//set查找和统计
+void test4() {
+	set<int> s1;
+
+	s1.insert(2);
+	s1.insert(1);
+	s1.insert(3);
+	s1.insert(4);
+
+	cout << *s1.find(2) << endl;//返回的是迭代器
+	cout << *s1.find(4) << endl;//返回的是迭代器
+	bool b=s1.find(100) == s1.end();//不存在返回的s1.end()
+	cout << b << endl; //1	true
+
+	cout << s1.count(1) << endl;//返回1的数量：1
+}
+
+//set和multiset的区别
+void test5() {
+	multiset<int> ms;
+	ms.insert(10);
+	ms.insert(20);
+	ms.insert(30);
+	ms.insert(50);
+	ms.insert(30);
+
+	printSet(ms);//允许重复数字
+}
+
+int main() {
+	test1();
+	cout << "============================" << endl;
+	test2();
+	cout << "============================" << endl;
+	test3();
+	cout << "============================" << endl;
+	test4();
+	cout << "============================" << endl;
+	test5();
+}
+```
+
+#### 2.8.2 pair对组创建
+
+功能：成对出现的数据，利用队组可以返回两个数据
+
+```C++
+//pair队组创建
+void test6() {
+	//第一个方式
+	pair<string, int> p1("tom", 20);
+	cout << "姓名：" << p1.first << "年龄：" << p1.second << endl;
+	//第二个方式
+	pair<string, int> p2 = make_pair("Jerry", 30);
+	cout << "姓名：" << p2.first << "年龄：" << p2.second << endl;
+}
+```
+
+#### 2.8.3 set容器排序
+
+```C++
+#include<iostream>
+#include<set>
+#include<string>
+using namespace std;
+
+class MyComapre {//仿函数
+public:
+	bool operator()(int v1, int v2) const {//第一个小括号代表重载小括号，第二个代表参数列表
+		return v1 > v2;
+	}
+};
+
+class Person {
+public:
+	Person(string name, int age) {
+		this->m_Name = name;
+		this->m_Age = age;
+	}
+
+	string m_Name;
+	int m_Age;
+};
+
+class ComaprePerson {
+public:
+	bool operator()(const Person &p1,const Person &p2) const {
+		return p1.m_Age > p2.m_Age;
+	}
+};
+
+//set容器排序
+void test1() {
+	set<int> s1;
+	s1.insert(10);
+	s1.insert(40);
+	s1.insert(20);
+	s1.insert(120);
+	for (set<int>::iterator it = s1.begin(); it != s1.end(); it++) {
+		cout << *it << " ";
+	}
+	cout << endl;
+	//指定排序规则从大到小
+	set<int, MyComapre> s2;
+	s2.insert(10);
+	s2.insert(40);
+	s2.insert(20);
+	s2.insert(120);
+	for (set<int>::iterator it = s2.begin(); it != s2.end(); it++) {
+		cout << *it << " ";
+	}
+	cout << endl;
+}
+
+//自定义类型必须指定排序规则
+void test2() {
+	set<Person,ComaprePerson> s;
+	Person p1("刘备",41);
+	Person p2("关羽",31);
+	Person p3("张飞",23);
+	Person p4("赵云",33);
+	s.insert(p1);
+	s.insert(p2);
+	s.insert(p3);
+	s.insert(p4);
+
+	for (set<Person,ComaprePerson>::iterator it = s.begin(); it != s.end(); it++) {
+		cout << it->m_Name << " " << it->m_Age << endl;
+	}
+	cout << endl;
+}
+
+int main() {
+	test1();
+	cout << "====================" << endl;
+	test2();
+}
+```
+
+### 2.9 map/multimap容器
+
+简介：
+
+* map中所有元素都是pair
+* pair中第一元素为key（键值），起到索引作用，第二个元素为value（实值）
+* 所有元素都会根据元素的键值自动排序
+
+本质：map。multimap属于关联式容器，底层结构是用二叉树实现的
+
+优点：可以快速按照key值找到value值
+
+multimap允许有重复key，map不允许，value两个容器都允许有重复的key值
+
+```C++
+#include<map>
+#include<iostream>
+using namespace std;
+
+void printMap(map<int, int>& m) {
+	for (map<int, int>::iterator it = m.begin(); it != m.end(); it++) {
+		cout << "key=" << it->first << "\tvalue=" << it->second << endl;
+	}
+}
+
+//map容器构造和赋值
+void test1() {
+	map<int, int> m;
+
+	m.insert(pair<int, int>(2, 90));
+	m.insert(pair<int, int>(3, 120));
+	m.insert(pair<int, int>(4, 110));
+	m.insert(pair<int, int>(1, 110));
+	printMap(m);//按照key排序
+}
+
+//map大小和交换
+void test2() {
+	map<int, int> m;
+
+	m.insert(pair<int, int>(2, 90));
+	m.insert(pair<int, int>(3, 120));
+	m.insert(pair<int, int>(4, 110));
+	m.insert(pair<int, int>(1, 110));
+
+	cout << "大小：" << m.size() << "\t是否为空：" << m.empty() << endl;
+}
+
+//map插入和删除
+void test3() {
+	map<int, int> m;
+	//插入
+	m.insert(pair<int, int>(1, 12));
+	m.insert(make_pair(2, 231));
+	m.insert(map<int, int>::value_type(4, 12));
+	m[3] = 421;
+	m[5];//key=5,value=0
+	m[3] = 1231;//可以改变键为3的值
+	printMap(m);
+	//删除
+	m.erase(m.begin());
+	m.erase(4);//按照key删除
+	printMap(m);
+}
+
+//map查找和统计
+void test4() {
+	map<int, int> m;
+
+	m.insert(pair<int, int>(2, 90));
+	m.insert(pair<int, int>(3, 120));
+	m.insert(pair<int, int>(4, 110));
+	m.insert(pair<int, int>(1, 110));
+
+	map<int,int>::iterator pos= m.find(1);
+	if (pos != m.end()) {
+		cout << "key" << pos->first << "\tvalue=" << pos->second << endl;
+	}
+	else {
+		cout << "fucked fucking" << endl;
+	}
+}
+
+class MyCompare {
+public:
+	bool operator()(int v1,int v2) const {
+		return v1 > v2;
+	}
+};
+
+//map排序
+void test5() {
+	map<int, int,MyCompare> m;
+
+	m.insert(pair<int, int>(2, 90));
+	m.insert(pair<int, int>(3, 120));
+	m.insert(pair<int, int>(4, 110));
+	m.insert(pair<int, int>(1, 110));
+	for (map<int, int>::iterator it = m.begin(); it != m.end(); it++) {
+		cout << "key=" << it->first << "\tvalue=" << it->second << endl;
+	}
+
+}
+
+int main() {
+	test1();
+	cout << "====================" << endl;
+	test2();
+	cout << "====================" << endl;
+	test3();
+	cout << "====================" << endl;
+	test4();
+	cout << "====================" << endl;
+	test5();
+}
+```
 
 
 
+## 3 STL函数对象
 
+### 3.1 函数对象
 
+概念：重载函数调用操作符，其对象称为函数对象；函数对象使用重载的()时，行为类似函数调用，也叫仿函数
 
+本质：函数对象（仿函数）是一个类，不是一个函数
 
+特点：
 
+* 函数对象在使用时，可以像普通函数那样调用，可以有参数，可以有返回值
+* 函数对象超出普通函数的概念，函数对象可以有自己的状态
+* 函数对象可以作为参数传递
 
+```C++
+#include<iostream>
+#include<string>
+using namespace std;
 
+class MyAdd {
+public:
+	int operator()(int v1, int v2) {
+		return v1 + v2;
+	}
+};
 
+class MyPrint {
+public:
+	void operator()(string test) {
+		cout<<test<<endl;
+		this->count++;
+	}
+
+	MyPrint() {
+		this->count = 0;
+	}
+
+	int count;
+};
+
+void doPrint(MyPrint& mp, string test) {
+	mp(test);
+}
+
+int main() {
+	//1.函数对象在使用时，可以像普通函数那样调用，可以有参数，可以有返回值
+	MyAdd myAdd;
+	cout << myAdd(1, 4) << endl;
+	//2.函数对象超出普通函数的概念，函数对象可以有自己的状态
+	MyPrint myPrint;
+	myPrint("hello world");
+	myPrint("hello world");
+	myPrint("hello world");
+	cout << "myPrint调用的次数：" << myPrint.count << endl;
+	//3.函数对象可以作为参数传递
+	MyPrint p;
+	doPrint(p, "hello C++");
+}
+```
+
+### 3.2 谓词
+
+* 返回bool类型的仿函数称为谓词
+* 如果operator接受一个参数称为一元谓词，两个参数称为两元谓词
+
+#### 3.2.1 一元谓词
+
+````C++
+#include<iostream>
+using namespace std;
+#include<vector>
+#include<algorithm>
+
+class GreaeterFive {
+public:
+	bool operator()(int num) {
+		return num > 5;
+	}
+};
+
+int main() {
+	vector<int> v;
+	for (int i = 0; i < 10; i++) {
+		v.push_back(i);
+	}
+
+	//查找容器中大于5的数字
+	vector<int>::iterator it=find_if(v.begin(),v.end(),GreaeterFive());
+	if (it == v.end()) {
+		cout << "no" << endl;
+	}
+	else {
+		cout << *it << endl;
+	}
+}
+````
 
