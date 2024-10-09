@@ -1625,3 +1625,393 @@ int main() {
 }
 ````
 
+#### 3.2.2 二元谓词
+
+```C++
+#include<iostream>
+using namespace std;
+#include<vector>
+#include<algorithm>
+
+//二元谓词
+class MyCompare {
+public:
+	bool operator()(int v1, int v2) {
+		return v1 > v2;
+	}
+};
+
+int main() {
+	vector<int> v;
+	v.push_back(10);
+	v.push_back(40);
+	v.push_back(50);
+	v.push_back(30);
+	v.push_back(20);
+
+	sort(v.begin(), v.end());
+	for (vector<int>::iterator it = v.begin(); it != v.end(); it++) {
+		cout << *it << " ";
+	}
+	cout << endl;
+	//使用函数对象，改变算法策略，变为排序
+	sort(v.begin(),v.end(),MyCompare());
+	for (vector<int>::iterator it = v.begin(); it != v.end(); it++) {//递减序列
+		cout << *it << " ";
+	}
+	cout << endl;
+}
+```
+
+### 3.3  内建函数对象
+
+概念：STL内建了一些函数对象
+
+用法：
+
+* 这些仿函数所产生的对象，用法和一般函数完全相同
+* 使用内建函数对象，需要引入头文件`<functional>`
+
+#### 3.3.1 算术仿函数
+
+功能：实现四则运算，其中negate是一元运算，其他都是二元运算
+
+仿函数：plus、minus、multiplies、divides、modules、negate
+
+```c++
+#include<iostream>
+#include<functional>
+using namespace std;
+
+int main() {
+
+	negate<int> n;
+	//相当于对50进行取反操作 
+	cout << n(50) << endl;//-50
+
+	plus<double> add;
+	cout << add(13, 313) << endl;//326
+}
+```
+
+#### 3.3.2 关系仿函数
+
+`template<class T> bool greater<T>`：大于仿函数
+
+```C++
+#include<iostream>
+#include<vector>
+#include<functional>
+#include<algorithm>
+using namespace std;
+
+int main() {
+	vector<int> v;
+	v.push_back(10);
+	v.push_back(40);
+	v.push_back(50);
+	v.push_back(30);
+	v.push_back(20);
+
+	for (vector<int>::iterator it = v.begin(); it != v.end(); it++) {
+		cout << *it << " ";
+	}
+	cout << endl;
+	sort(v.begin(), v.end(), greater<int>());
+	for (vector<int>::iterator it = v.begin(); it != v.end(); it++) {
+		cout << *it << " ";
+	}
+	//sort(v.begin(), v.end(), greater_equal<int>());
+	
+}
+```
+
+#### 3.3.3 逻辑仿函数
+
+功能：实现逻辑运算
+
+函数原型：
+
+* `template<class T> bool logical_and<T>` //逻辑与
+* `template<class T> bool logical_or<T>` //逻辑或
+* `template<class T> bool logical_not<T>` //逻辑非
+
+```C++
+#include<iostream>
+#include<functional>
+#include<vector>
+#include<algorithm>
+using namespace std;
+
+int main() {
+	vector<bool> v;
+	v.push_back(true);
+	v.push_back(true);
+	v.push_back(false);
+	v.push_back(true);
+
+	for (vector<bool>::iterator it = v.begin(); it != v.end(); it++) {
+		cout << *it << " ";
+	}
+	cout << endl;
+
+	//利用逻辑非，将容器搬运到v2中，并执行取反操作
+	vector<bool> v2;
+	v2.resize(v.size());
+	transform(v.begin(), v.end(), v2.begin(),logical_not<bool>());
+	for (vector<bool>::iterator it = v2.begin(); it != v2.end(); it++) {
+		cout << *it << " ";
+	}
+
+}
+```
+
+
+
+## 4 STL常用算法
+
+* 算法主要是由头文件`<algorithm>` `<function>` `<numberic>`组成
+* `<algorithm>`是所有STL头文件中最大的一个，范围涉及到比较、交换、查找、遍历操作、复制、修改等等
+* `<numberic>`体积很小，只包括几个在序列上面进行简单数学运算的模板函数
+* `<functional>`定义了一些模板类，用于声明函数对象
+
+### 4.1 常用遍历算法
+
+#### 4.1.1 for_each（遍历容器）
+
+```C++
+#include<iostream>
+#include<algorithm>
+#include<vector>
+using namespace std;
+
+void print(int val) {
+	cout << val << " ";
+}
+
+class Print {
+public:
+	void operator()(int val) {
+		cout << val << " ";
+	}
+};
+
+int main() {
+	vector<int> v;
+	for (int i=0; i < 10; i++) {
+		v.push_back(rand() % 100);
+	}
+	for_each(v.begin(), v.end(), print);
+	cout << endl;
+	for_each(v.begin(), v.end(), Print());
+}
+```
+
+#### 4.1.1 transform（搬运容器）
+
+```C++
+#include<iostream>
+#include<algorithm>
+#include<vector>
+using namespace std;
+
+class Transform {
+public:
+	int operator()(int value) {
+		return value;
+	}
+};
+
+class Print {
+public:
+	void operator() (int value){
+		cout << value << " ";
+	}
+};
+
+int main() {
+	vector<int> v;
+	for (int i = 0; i < 10; i++) {
+		v.push_back(rand() % 100);
+	}
+	vector<int> dest_v;
+	dest_v.resize(v.size());
+	transform(v.begin(), v.end(), dest_v.begin(),Transform());
+	for_each(dest_v.begin(), dest_v.end(), Print());
+
+}
+```
+
+### 4.2 常用查找算法
+
+#### 4.2.1 find（查找元素）
+
+````C++
+#include<iostream>
+#include<vector>
+#include<algorithm>
+#include<string>
+using namespace std;
+
+class Person {
+public:
+	Person(string name, int age) :m_name(name), m_age(age) {}
+
+	bool operator==(const Person& p) {
+		if (this->m_name == p.m_name && this->m_age == p.m_age) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	string m_name;
+	int m_age;
+};
+
+int main() {
+	vector<Person> v;
+	Person p1("tom", 12);
+	Person p2("jack", 12);
+	Person p3("john", 12);
+	Person p4("thoms", 12);
+	v.push_back(p1);
+	v.push_back(p2);
+	v.push_back(p3);
+	v.push_back(p4);
+
+	vector<Person>::iterator it = find(v.begin(), v.end(), p2);
+	if (it == v.end()) {
+		cout << "没有找到" << endl;
+	}
+	else {
+		cout << it->m_name << "\t:" << it->m_age << endl;
+	}
+}
+````
+
+#### 4.2.2 find_if（按条件查找元素）
+
+```C++
+#include<iostream>
+#include<algorithm>
+#include<vector>
+using namespace std;
+
+class GreateFive {
+public:
+	bool operator()(int val) {
+		return val > 5;
+	}
+};
+
+int main() {
+	vector<int> v;
+	for (int i = 0; i < 10; i++) {
+		v.push_back(rand() % 100);
+	}
+
+	//查找大于5的数
+	vector<int>::iterator it=find_if(v.begin(), v.end(), GreateFive());
+	if (it == v.end()) {
+		cout << "没找到" << endl;
+	}
+	else {
+		cout << *it << endl;
+	}
+}
+```
+
+#### 4.2.2 adjacent_find（查找相邻重复元素）
+
+```C++
+#include<iostream>
+#include<algorithm>
+#include<vector>
+using namespace std; 
+
+class Print {
+public:
+	void operator()(int val) {
+		cout << val << " ";
+	}
+};
+
+int main() {
+	vector<int> v;
+	for (int i = 0; i < 10; i++) {
+		v.push_back(rand() % 5);
+	}
+
+	for_each(v.begin(), v.end(), Print());
+	cout << endl;
+	vector<int>::iterator it = adjacent_find(v.begin(), v.end());
+
+	if (it == v.end()) {
+		cout << "没找到" << endl;
+	}
+	else {
+		cout << *it << endl;
+	}
+}
+```
+
+#### 4.2.3 binary_search（二分查找）
+
+#### 4.2.4 count（统计元素个数）
+
+```C++
+#include<iostream>
+#include<algorithm>
+#include<vector>
+using namespace std;
+
+int main() {
+	vector<int> v;
+	v.push_back(10);
+	v.push_back(20);
+	v.push_back(10);
+	v.push_back(20);
+	v.push_back(30);
+	v.push_back(10);
+	cout<<"10的元素个数："<<count(v.begin(), v.end(), 10);
+}
+```
+
+#### 4.2.4 count_if（按条件统计元素个数）
+
+```C++
+#include<iostream>
+#include<vector>
+#include<algorithm>
+using namespace std;
+
+class GreateFive {
+public:
+	bool operator()(int val) {
+		return val > 50;
+	}
+};
+
+class Print {
+public:
+	void operator()(int val) {
+		cout << val << " ";
+	}
+};
+
+int main() {
+	vector<int> v;
+	for (int i = 0; i < 10; i++) {
+		v.push_back(rand() % 100);
+	}
+	for_each(v.begin(), v.end(), Print());
+	cout << endl;
+	//大于5的数
+	cout << count_if(v.begin(), v.end(), GreateFive()) << endl;
+
+}
+```
+
+### 4.3 常用排序算法
