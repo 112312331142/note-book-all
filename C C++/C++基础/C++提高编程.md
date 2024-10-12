@@ -2015,3 +2015,290 @@ int main() {
 ```
 
 ### 4.3 常用排序算法
+
+#### 4.3.1 sort(对容器内元素进行排序)
+
+```C++
+void myPrint(int val) {
+	cout << val << " ";
+}
+
+int main() {
+	vector<int> v;
+	for (int i = 0; i < 10; i++) {
+		v.push_back(rand() % 100);
+	}
+
+	sort(v.begin(), v.end());
+	for_each(v.begin(), v.end(), myPrint);
+
+	sort(v.begin(), v.end(),greater<int>());//将排序改为降序排列
+	for_each(v.begin(), v.end(), myPrint);
+}
+```
+
+#### 4.3.2 random_shuffle(将元素随机条则会那个次序)
+
+```C++
+#include<iostream>
+#include<algorithm>
+#include<vector>
+#include<ctime>
+using namespace std;
+
+void print(int val) {
+	cout << val << " ";
+}
+
+int main() {
+
+	srand((unsigned int)time(NULL));
+
+	vector<int> v;
+	for (int i = 0; i < 10; i++) {
+		v.push_back(i);
+	}
+	random_shuffle(v.begin(), v.end());
+	for_each(v.begin(), v.end(),print);
+}
+```
+
+#### 4.3.3 merge(两个容器合并，并存储到容器中)
+
+这两个容器里的元素必须是有序的，排序规则也必须一致
+
+```C++
+#include<iostream>
+#include<algorithm>
+#include<vector>
+using namespace std;
+
+void print(int val) {
+	cout << val << " ";
+}
+
+int main() {
+	vector<int> v1;
+	vector<int> v2;
+
+	for (int i = 0; i < 10; i++) {
+		v1.push_back(i);
+		v2.push_back(i+1);
+	}
+	//dest容器
+	vector<int> v3;
+	v3.resize(v1.size() + v2.size());
+	merge(v1.begin(), v1.end(), v2.begin(), v2.end(), v3.begin());
+	for_each(v3.begin(), v3.end(), print);
+    //结果：0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 10
+}
+```
+
+#### 4.3.4 reverse(反转容器)
+
+```C++
+#include<iostream>
+#include<algorithm>
+#include<vector>
+using namespace std;
+
+void print(int val) {
+	cout << val << " ";
+}
+
+int main() {
+	vector<int> v;
+	for (int i = 0; i < 10; i++) {
+		v.push_back(rand() % 100);
+	}
+	for_each(v.begin(), v.end(), print);//41 67 34 0 69 24 78 58 62 64
+	cout << endl;
+	reverse(v.begin(), v.end());
+	for_each(v.begin(), v.end(), print);//64 62 58 78 24 69 0 34 67 41
+}
+```
+
+### 4.4 常用拷贝和替换算法
+
+#### 4.4.1 copy(拷贝)
+
+```C++
+class Print {
+public:
+	void operator()(int val) {
+		cout << val << " ";
+	}
+};
+
+int main() {
+	vector<int> v;
+	for (int i = 0; i < 10; i++) {
+		v.push_back(i);
+	}
+	vector<int> v_copy;
+	v_copy.resize(v.size());
+	copy(v.begin(), v.end(),v_copy.begin());
+	for_each(v_copy.begin(), v_copy.end(), Print());
+
+```
+
+#### 4.4.2 replace(替换)
+
+```C++
+void print(int val) {
+	cout << val << " ";
+}
+
+int main() {
+	vector<int> v;
+	v.push_back(31);
+	v.push_back(61);
+	v.push_back(35);
+	v.push_back(36);
+	v.push_back(30);
+	v.push_back(71);
+	v.push_back(91);
+	for_each(v.begin(), v.end(), print);
+	cout << endl;
+	replace(v.begin(), v.end(), 31, 31445);
+	for_each(v.begin(), v.end(), print);
+}
+```
+
+replcace_if：满足条件替换
+
+#### 4.4.3 swap(互换)
+
+```C++
+void print(int val) {
+	cout << val << " ";
+}
+
+int main() {
+	vector<int> v1;
+	vector<int> v2;
+	for (int i = 0; i < 10; i++) {
+		v1.push_back(i);
+		v2.push_back(i*100);
+	}
+	swap(v1, v2);
+	for_each(v1.begin(), v1.end(), print);
+	cout << endl;
+	for_each(v2.begin(), v2.end(), print);
+
+}
+```
+
+### 4.5 常用算数生成算法
+
+算术生成算法属于小型算法，使用时包含的头文件为`#include<numeric>`
+
+#### 4.5.1 accumulate(容器内元素总和)
+
+```C++
+#include<iostream>
+#include<vector>
+#include<numeric>
+using namespace std;
+
+int main() {
+	vector<int> v;
+	for (int i = 0; i <= 100; i++) {
+		v.push_back(i);
+	}
+	int sum = accumulate(v.begin(), v.end(),0);//第三个参数为起始值
+	cout << sum << endl;
+}
+```
+
+#### 4.5.2 fill(填充元素)
+
+```C++
+void print(int val) {
+	cout << val << " ";
+}
+
+int main() {
+	vector<int> v;
+	v.resize(10);
+	//后期重新填充
+	fill(v.begin(), v.end(), 314);
+	for_each(v.begin(), v.end(),print);
+}
+```
+
+### 4.6常用集合算法
+
+求交集（并集）的两个集合必须是有序序列
+
+#### 4.6.1 set_intersection(交集)
+
+#### 4.6.2 set_union(并集)
+
+#### 4.6.3 set_difference(差集)
+
+```C++
+#include<iostream>
+#include<algorithm>
+#include<vector>
+using namespace std;
+
+void print(int val) {
+	cout << val << " ";
+}
+
+void setintersection(vector<int> v1, vector<int> v2) {
+	vector<int> dest;
+	dest.resize(min(v1.size(), v2.size()));//目标容器开辟空间，取两个容器的最小值
+	vector<int>::iterator it_end =//返回的是交集最后一个迭代器
+		set_intersection(v1.begin(), v1.end(), v2.begin(), v2.end(), dest.begin());
+	for_each(dest.begin(), it_end, print);
+	cout << endl;
+}
+void setunion(vector<int> v1, vector<int> v2) {
+	vector<int> dest;
+	dest.resize(v1.size() + v2.size());//目标容器开辟空间，取两个容器的容量之和
+	vector<int>::iterator it_end =//返回的是并集最后一个迭代器
+		set_union(v1.begin(), v1.end(), v2.begin(), v2.end(), dest.begin());
+	for_each(dest.begin(), it_end, print);
+	cout << endl;
+}
+
+void setdifference(vector<int> v1, vector<int> v2) {
+	vector<int> dest;
+	dest.resize(v1.size());//目标容器开辟空间，取v1的容量
+	vector<int>::iterator it_end =//返回的是差集最后一个迭代器
+		set_difference(v1.begin(), v1.end(), v2.begin(), v2.end(), dest.begin());
+	for_each(dest.begin(), it_end, print);
+	cout << endl;
+}
+int main() {
+	vector<int> v1;
+	vector<int> v2;
+
+	for (int i = 0; i < 10; i++) {
+		v1.push_back(i);
+		v2.push_back(i + 5);
+	}
+	setintersection(v1, v2);
+	cout << "-----------------------------" << endl;
+	setunion(v1, v2);
+	cout << "-----------------------------" << endl;
+	setdifference(v1, v2);
+	setdifference(v2, v1);
+
+
+}
+```
+
+结果：
+
+```.exe
+5 6 7 8 9
+-----------------------------
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14
+-----------------------------
+0 1 2 3 4
+10 11 12 13 14
+```
+
