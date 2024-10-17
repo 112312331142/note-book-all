@@ -478,17 +478,608 @@ App.vue 文件（单文件组件）的三个部分：
 import 组件对象 from '.vue文件路径'
 import HmHeader from './components/HmHeader'
 
-export default {  // 局部注册
+export default {  // 局部注册
   components: {
-   '组件名': 组件对象,
+   //'组件名': 组件对象,
     HmHeader:HmHeaer,
     HmHeader
   }
 }
 ```
 
-
-
-#### 2.5.2 全局组件
+#### 2.5.2 全局注册
 
 所有组件内部都能使用
+
+语法：
+
+```js
+// 导入需要全局注册的组件
+import HmButton from './components/HmButton'
+Vue.component('HmButton', HmButton)
+```
+
+### 2.6 组件的三大部分
+
+注意点：
+
+* 结构：只能有一个根元素
+* 样式：全局样式（默认）：影响所有组件；局部样式：scoped下样式，只作用于当前组件
+* 逻辑：el根实例独有，data是一个函数，其他配置项一致
+
+#### 2.6.1 组件的样式冲突scoped
+
+**默认情况**：
+
+写在组件中的样式会 **全局生效** → 因此很容易造成多个组件之间的样式冲突问题。
+
+1. **全局样式**: 默认组件中的样式会作用到全局，任何一个组件中都会受到此样式的影响
+2. **局部样式**: 可以给组件加上**scoped** 属性,可以**让样式只作用于当前组件**
+
+BaseOne.vue
+
+```vue
+<template>
+  <div class="base-one">
+    BaseOne
+  </div>
+</template>
+
+<script>
+export default {
+
+}
+</script>
+<style scoped>
+</style>
+```
+
+BaseTwo.vue
+
+```vue
+<template>
+  <div class="base-one">
+    BaseTwo
+  </div>
+</template>
+
+<script>
+export default {
+
+}
+</script>
+
+<style scoped>
+</style>
+```
+
+App.vue
+
+```vue
+<template>
+  <div id="app">
+    <BaseOne></BaseOne>
+    <BaseTwo></BaseTwo>
+  </div>
+</template>
+
+<script>
+import BaseOne from './components/BaseOne'
+import BaseTwo from './components/BaseTwo'
+export default {
+  name: 'App',
+  components: {
+    BaseOne,
+    BaseTwo
+  }
+}
+</script>
+```
+
+scoped原理：
+
+1. 当前组件内标签都被添加**data-v-hash值** 的属性
+2. css选择器都被添加 [**data-v-hash值**] 的属性选择器
+
+最终效果: **必须是当前组件的元素**, 才会有这个自定义属性, 才会被这个样式作用到
+
+#### 2.6.2 data是一个函数
+
+一个组件的 **data** 选项必须**是一个函数**。目的是为了：保证每个组件实例，维护**独立**的一份**数据**对象。
+
+每次创建新的组件实例，都会新**执行一次data 函数**，得到一个新对象。
+
+代码演示：
+
+BaseCount.vue
+
+```vue
+<template>
+  <div class="base-count">
+    <button @click="count--">-</button>
+    <span>{{ count }}</span>
+    <button @click="count++">+</button>
+  </div>
+</template>
+
+<script>
+export default {
+  data: function () {
+    return {
+      count: 100,
+    }
+  },
+}
+</script>
+
+<style>
+.base-count {
+  margin: 20px;
+}
+</style>
+```
+
+App.vue
+
+```vue
+<template>
+  <div class="app">
+    <BaseCount></BaseCount>
+  </div>
+</template>
+
+<script>
+import BaseCount from './components/BaseCount'
+export default {
+  components: {
+    BaseCount,
+  },
+}
+</script>
+
+<style>
+</style>
+```
+
+
+
+## 三、组件通信和进阶语法
+
+### 3.1 组件通信
+
+指组件与组件之间的数据传递
+
+* 组件的数据是独立的，无法直接访问其他组件的数据。
+* 想使用其他组件的数据，就需要组件通信
+
+组件关系分为：父子关系，非父子关系
+
+组件通信解决方案：
+
+父子关系：props、$emit
+
+非父子关系：provide&inject、eventbus
+
+#### 3.1.1 父子通信流程
+
+1. 父组件通过 **props** 将数据传递给子组件
+2. 子组件利用 **$emit** 通知父组件修改更新
+
+父向子传值步骤
+
+1. 给子组件以添加属性的方式传值
+2. 子组件内部通过props接收
+3. 模板中直接使用 props接收的值
+
+子向父传值步骤
+
+1. $emit触发事件，给父组件发送消息通知
+2. 父组件监听$emit触发的事件
+3. 提供处理函数，在函数的性参中获取传过来的参数
+
+#### 3.1.2 props详解
+
+* Props定义：组件上注册的一些自定义属性
+* Props作用：向子组件传递数据
+* Props特点：可以 传递 **任意数量** 的prop、**任意类型** 的prop
+
+props校验：组件的props不可以乱传
+
+* 作用：为组件的 prop 指定**验证要求**，不符合要求，控制台就会有**错误提示** → 帮助开发者，快速发现错误
+* 语法：**类型校验**、非空校验、默认值自定义校验
+
+```js
+props: {
+  校验的属性名: {
+    type: 类型,  // Number String Boolean ...
+    required: true, // 是否必填
+    default: 默认值, // 默认值
+    validator (value) {
+      // 自定义校验逻辑
+      return 是否通过校验
+    }
+  }
+},
+```
+
+注意：
+
+1.default和required一般不同时写（因为当时必填项时，肯定是有值的）
+
+2.default后面如果是简单类型的值，可以直接写默认。如果是复杂类型的值，则需要以函数的形式return一个默认值
+
+#### 3.1.3 props&data、单向数据流
+
+共同点：都可以给组件提供数据
+
+区别：
+
+- data 的数据是**自己**的 → 随便改
+- prop 的数据是**外部**的 → 不能直接改，要遵循 **单向数据流**
+
+单向数据流：父级props 的数据更新，会向下流动，影响子组件。这个数据流动是单向的
+
+### 3.2 v-model详解
+
+#### 3.2.1 v-model原理
+
+v-model本质上是一个语法糖。例如应用在输入框上，就是value属性 和 input事件 的合写
+
+```html
+<template>
+  <div id="app" >
+    <input v-model="msg" type="text">
+
+    <input :value="msg" @input="msg = $event.target.value" type="text">
+  </div>
+</template>
+```
+
+作用：提供数据的双向绑定
+
+- 数据变，视图跟着变 :value
+- 视图变，数据跟着变 @input
+
+$event用于在模板中，获取事件的形参
+
+#### 3.2.2 表单类组件封装
+
+实现子组件和父组件数据的双向绑定 （实现App.vue中的selectId和子组件选中的数据进行双向绑定）
+
+子组件
+
+```html
+<select :value="value" @change="handleChange">...</select>
+props: {
+  value: String
+},
+methods: {
+  handleChange (e) {
+    this.$emit('input', e.target.value)
+  }
+}
+```
+
+父组件
+
+```vue
+<BaseSelect v-model="selectId"></BaseSelect>
+```
+
+### 3.3 .sync修饰符
+
+作用：可以实现子组件与父组件数据的双向绑定，简化代码
+
+特点：prop属性名，可以自定义，非固定为value
+
+场景：封装弹框类的基础组件， visible属性 true显示 false隐藏
+
+本质：.sync修饰符 就是 **:属性名** 和 **@update:属性名** 合写
+
+### 3.4 ref和$refs
+
+作用：利用ref 和 $refs 可以用于 获取 dom 元素 或 组件实例
+
+特点：查找范围 → 当前组件内(更精确稳定)
+
+语法：
+
+1.给要获取的盒子添加ref属性
+
+```html
+<div ref="chartRef">我是渲染图表的容器</div>
+```
+
+2.获取时通过 $refs获取 this.$refs.chartRef 获取
+
+```js
+mounted () {
+  console.log(this.$refs.chartRef)
+}
+```
+
+注意：之前只用document.querySelect('.box') 获取的是整个页面中的盒子
+
+### 3.5 Vue异步更新和$nextTick
+
+需求：编辑标题, 编辑框自动聚焦
+
+1. 点击编辑，显示编辑框
+2. 让编辑框，立刻获取焦点
+
+代码实现：
+
+```vue
+<template>
+  <div class="app">
+    <div v-if="isShowEdit">
+      <input type="text" v-model="editValue" ref="inp" />
+      <button>确认</button>
+    </div>
+    <div v-else>
+      <span>{{ title }}</span>
+      <button @click="editFn">编辑</button>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      title: '大标题',
+      isShowEdit: false,
+      editValue: '',
+    }
+  },
+  methods: {
+    editFn() {
+        // 显示输入框
+        this.isShowEdit = true  
+        // 获取焦点
+        this.$refs.inp.focus() 
+    }  },
+}
+</script> 
+```
+
+问题："显示之后"，立刻获取焦点是不能成功的！
+
+原因：Vue 是异步更新DOM (提升性能)
+
+解决方案：$nextTick：**等 DOM更新后**,才会触发执行此方法里的函数体
+
+**语法：** this.$nextTick(函数体)
+
+```vue
+this.$nextTick(() => {
+  this.$refs.inp.focus()
+})
+```
+
+**注意：**$nextTick 内的函数体 一定是**箭头函数**，这样才能让函数内部的this指向Vue实例
+
+
+
+## 四、自定义指令、插槽
+
+### 4.1 自定义指令
+
+#### 4.1.1 基础语法
+
+指令介绍：
+
+- 内置指令：**v-html、v-if、v-bind、v-on**... 这都是Vue给咱们内置的一些指令，可以直接使用
+
+- 自定义指令：同时Vue也支持让开发者，自己注册一些指令。这些指令被称为**自定义指令**
+
+  每个指令都有自己各自独立的功能
+
+自定义指令：
+
+概念：自己定义的指令，可以**封装一些DOM操作**，扩展额外的功能
+
+使用：`<input v-指令名 type="text">`
+
+全局注册-语法：
+
+```js
+//在main.js中
+Vue.directive('指令名', {
+  "inserted" (el) {//当指令做绑定的元素添加到页面中自动调用
+    // 可以对 el 标签，扩展额外功能
+    el.focus()
+  }
+})
+```
+
+局部注册-语法：
+
+```js
+//在Vue组件的配置项中
+directives: {
+  "指令名": {
+    inserted () {
+      // 可以对 el 标签，扩展额外功能
+      el.focus()
+    }
+  }
+}
+```
+
+#### 4.1.2 指令的值
+
+实现一个 color 指令 - 传入不同的颜色, 给标签设置文字颜色
+
+1.在绑定指令时，可以通过“等号”的形式为指令 绑定 具体的参数值
+
+```
+<div v-color="color">我是内容</div>
+```
+
+2.通过 binding.value 可以拿到指令值，**指令值修改会 触发 update 函数**
+
+```vue
+<script>
+export default {
+  data () {
+    return {
+      color1:'red',
+      color2:'green'
+    }
+  },
+  directives:{
+    color:{
+      //1.inserted提供元素被添加到页面上的逻辑
+      inserted(el,binding){
+        console.log(el,binding.value);
+        el.style.color=binding.value
+        
+      },
+      //2.update指令的值修改时触发，提供值变化后，dom更新的逻辑
+      update(el,binding){
+        el.style.color=binding.value
+      }
+    }
+  }
+}
+</script>
+```
+
+#### 4.1.3 loading指令封装
+
+场景：实际开发过程中，发送请求需要时间，在请求的数据未回来时，页面会处于**空白状态** => 用户体验不好
+
+需求：封装一个 v-loading 指令，实现加载中的效果
+
+分析：
+
+1.本质 loading效果就是一个蒙层，盖在了盒子上
+
+2.数据请求中，开启loading状态，添加蒙层
+
+3.数据请求完毕，关闭loading状态，移除蒙层
+
+实现：
+
+1.准备一个 loading类，通过伪元素定位，设置宽高，实现蒙层
+
+2.开启关闭 loading状态（添加移除蒙层），本质只需要添加移除类即可
+
+3.结合自定义指令的语法进行封装复用
+
+```vue
+<script>
+// 安装axios =>  yarn add axios
+import axios from 'axios'
+
+// 接口地址：http://hmajax.itheima.net/api/news
+// 请求方式：get
+export default {
+  data () {
+    return {
+      list: [],
+      isLoading:true,
+      isLoading2:true
+    }
+  },
+  async created () {
+    // 1. 发送请求获取数据
+    const res = await axios.get('http://hmajax.itheima.net/api/news')
+    
+    setTimeout(() => {
+      // 2. 更新到 list 中
+      this.list = res.data.data
+      this.isLoading=false
+    }, 2000)
+  },
+  directives:{
+    loading:{
+      inserted(el,binding){
+        binding.value ? el.classList.add('loading'):el.classList.remove('loading')
+      },
+      update(el,binding){
+        binding.value ? el.classList.add('loading'):el.classList.remove('loading')
+      }
+    }
+  }
+}
+</script>
+
+```
+
+### 4.2 插槽
+
+#### 4.2.1 默认插槽
+
+作用：让组件内部的一些结构支持自定义
+
+基本语法：
+
+1. 组件内需要定制的结构部分，改用**`<slot> </slot>`**占位
+2. 使用组件时, **`<MyDialog></MyDialog>`**标签内部, 传入结构替换slot
+3. 给插槽传入内容时，可以传入**纯文本、html标签、组**
+
+```vue
+ <!-- 在需要定制的位置进行slot占位 -->
+      <slot></slot>
+```
+
+```vue
+<template>
+  <div>
+    <!-- 在组件标签内填入内容 -->
+    <MyDialog>你确认要退出本系统么?</MyDialog>
+    <MyDialog>你确认删除吗</MyDialog>
+  </div>
+</template>
+```
+
+封装组件时，可以为预留的 `<slot>` 插槽提供后备内容（默认内容）。
+
+在 标签内，放置内容, 作为默认显示内容
+
+#### 4.2.2 具名插槽
+
+需求：一个组件内有多处结构，需要外部传入标签，进行定制
+
+具名插槽语法：
+
+- 多个slot使用name属性区分名字
+
+  ![68241339172](assets/1682413391727.png)
+
+- template配合v-slot:名字来分发对应标签
+
+  ![68241341192](assets/1682413411921.png)
+
+v-slot写起来太长，vue给我们提供一个简单写法 **v-slot —> #**
+
+#### 4.2.3  作用域插槽
+
+定义slot 插槽的同时, 是可以**传值**的。给 **插槽** 上可以 **绑定数据**，将来 **使用组件时可以用**
+
+使用步骤：
+
+1. 给 slot 标签, 以 添加属性的方式传值
+
+   ```vue
+   <slot :id="item.id" msg="测试文本"></slot>
+   ```
+
+2. 所有添加的属性, 都会被收集到一个对象中
+
+   ```json
+   { id: 3, msg: '测试文本' }
+   ```
+
+3. 在template中, 通过 ` #插槽名= "obj"` 接收，默认插槽名为 default
+
+   ```vue
+   <MyTable :list="list">
+     <template #default="obj">
+       <button @click="del(obj.id)">删除</button>
+     </template>
+   </MyTable>
+   ```
+
