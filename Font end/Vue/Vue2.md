@@ -1083,3 +1083,872 @@ v-slot写起来太长，vue给我们提供一个简单写法 **v-slot —> #**
    </MyTable>
    ```
 
+
+
+
+## 五、路由
+
+### 5.1 单页应用程序
+
+单页面引用程序（SPA）：所有功能在一个html页面上实现
+
+![68244191297](assets/1682441912977.png)
+
+单页应用类网站：系统类网站 / 内部网站 / 文档类网站 / 移动端站点
+
+多页应用类网站：公司官网 / 电商类网站
+
+单页面应用程序：
+
+优点：页面按需更新，开发效率高，性能好，用户体验好
+
+缺点：学习成本，首屏加载慢，不利于SEO
+
+### 5.2 路由介绍和使用
+
+生活中的路由：设备和ip的映射关系
+
+Vue中路由：路径和组件的映射关系，根据路由就能知道不同路径的，应该匹配渲染哪个组件
+
+* 目标：认识插件 VueRouter，掌握 VueRouter 的基本使用步骤
+
+* 作用：**修改**地址栏路径时，**切换显示**匹配的**组件**
+
+* 说明：Vue 官方的一个路由插件，是一个第三方包
+
+* 官网：<https://v3.router.vuejs.org/zh/>
+
+* VueRouter的使用
+
+  固定5个固定的步骤（不用死背，熟能生巧）
+
+  1. 下载 VueRouter 模块到当前工程，版本3.6.5
+
+     ```
+     yarn add vue-router@3.6.5
+     ```
+
+  2. main.js中引入VueRouter
+
+     ```
+     import VueRouter from 'vue-router'
+     ```
+
+  3. 安装注册
+
+     ```
+     Vue.use(VueRouter)
+     ```
+
+  4. 创建路由对象
+
+     ```
+     const router = new VueRouter()
+     ```
+
+  5. 注入，将路由对象注入到new Vue实例中，建立关联
+
+     ```vue
+     new Vue({
+       render: h => h(App),
+       router:router
+     }).$mount('#app')
+     ```
+
+  2个核心
+
+  1. 创建需要的组件 (views目录)，配置路由规则
+
+     ![68247963966](assets/1682479639666.png)
+
+  2. 配置导航，配置路由出口(路径匹配的组件显示的位置)
+
+     App.vue
+
+     ```vue
+     <div class="footer_wrap">
+       <a href="#/find">发现音乐</a>
+       <a href="#/my">我的音乐</a>
+       <a href="#/friend">朋友</a>
+     </div>
+     <div class="top">
+       <router-view></router-view>
+     </div>
+     ```
+
+### 5.3 组件存放目录问题
+
+.vue文件分为2类，都是 **.vue文件（本质无区别）**
+
+- 页面组件 （配置路由规则时使用的组件）
+- 复用组件（多个组件中都使用到的组件）
+
+分类开来的目的就是为了 **更易维护**
+
+1. src/views文件夹：页面组件 - 页面展示 - 配合路由用
+2. src/components文件夹：复用组件 - 展示数据 - 常用于复用
+
+### 5.4 路由的封装抽离
+
+问题：所有的路由配置都在main.js中合适吗？
+
+目标：将路由模块抽离出来。 好处：**拆分模块，利于维护**
+
+![68248141030](assets/1682481410304.png)
+
+路径简写：**脚手架环境下** @指代src目录，可以用于快速引入组件
+
+### 5.5 声明式导航-导航链接
+
+需求：实现导航高亮效果
+
+如果使用a标签进行跳转的话，需要给当前跳转的导航加样式，同时要移除上一个a标签的样式，太麻烦！！！
+
+解决方案：vue-router 提供了一个全局组件 router-link (取代 a 标签)
+
+- **能跳转**，配置 to 属性指定路径(**必须**) 。本质还是 a 标签 ，**to 无需 #**
+- **能高亮**，默认就会提供**高亮类名**，可以直接设置高亮样式
+
+使用router-link跳转后，我们发现。当前点击的链接默认加了两个class的值 `router-link-exact-active`和`router-link-active`
+
+我们可以给任意一个class属性添加高亮样式即可实现功能
+
+当我们使用跳转时，自动给当前导航加了**两个类名**
+
+1.router-link-active
+
+**模糊匹配（用的多）**
+
+to="/my" 可以匹配 /my /my/a /my/b ....
+
+只要是以/my开头的路径 都可以和 to="/my"匹配到
+
+2.router-link-exact-active
+
+**精确匹配**
+
+to="/my" 仅可以匹配 /my
+
+```css
+/* 
+  router-link-active 模糊匹配(更多)
+  to="/find"  =>  地址栏 /find   /find/one   /find/two  ...
+
+  router-link-exact-active 精确匹配
+  to="/find"  =>  地址栏 /find  
+*/
+.footer_wrap a.router-link-active {
+  background-color: pink;
+}
+```
+
+### 5.6 声明式导航-跳转传参
+
+#### 5.6.1 查询参数传参
+
+- 语法格式如下：`to="/path?参数名=值"`
+- 对应页面组件接受传递过来的值：固定用法：$router.query.参数名
+
+```vue
+ <div class="hot-link">
+      热门搜索：黑马程序员、前端培训、如何成为前端大牛
+      <router-link to="/search?key=黑马程序员">黑马程序员</router-link>
+      <router-link to="/search?key=前端培训">前端培训</router-link>
+      <router-link to="/search?key=如何成为前端大牛">如何成为前端大牛</router-link>
+ </div>
+```
+
+````vue
+<template>
+  <div class="search">
+    <p>搜索关键字: {{ $route.query.key }} </p>
+    <p>搜索结果: </p>
+    <ul>
+      <li>.............</li>
+      <li>.............</li>
+      <li>.............</li>
+      <li>.............</li>
+    </ul>
+  </div>
+</template>
+````
+
+#### 5.6.2 动态路由传参
+
+动态路由传参方式
+
+- 配置动态路由
+
+  > 动态路由后面的参数可以随便起名，但要有语义
+
+  ```js
+  const router = new VueRouter({
+    routes: [
+      ...,
+      { 
+        path: '/search/:words', 
+        component: Search 
+      }
+    ]
+  })
+  ```
+
+- 配置导航链接：to="/path/参数值"
+
+- 对应页面组件**接受参数**：`$route.params.参数名`
+
+  > params后面的参数名要和动态路由配置的参数保持一致
+
+#### 5.6.3 查询参数传参 VS 动态路由传参
+
+1. 查询参数传参 (比较适合传**多个参数**)
+
+   1. 跳转：to="/path?参数名=值&参数名2=值"
+   2. 获取：$route.query.参数名
+
+2. 动态路由传参 (**优雅简洁**，传单个参数比较方便)
+
+   1. 配置动态路由：path: "/path/:参数名"
+   2. 跳转：to="/path/参数值"
+   3. 获取：$route.params.参数名
+
+   注意：动态路由也可以传多个参数，但一般只传一个
+
+### 5.7 Vue路由
+
+#### 5.7.1 重定向
+
+网页打开时， url 默认是 / 路径，未匹配到组件时，会出现空白
+
+解决方案：**重定向** → 匹配 / 后, 强制跳转 /home 路径
+
+语法：
+
+```json
+{ path: 匹配路径, redirect: 重定向到的路径 },
+比如：
+{ path:'/' ,redirect:'/home' }
+```
+
+代码演示：
+
+```js
+const router = new VueRouter({
+  routes: [
+    { path: '/', redirect: '/home'},
+ 	 ...
+  ]
+})
+```
+
+#### 5.7.2 404
+
+作用：当路径找不到匹配时，给个提示页面
+
+位置：404的路由，虽然配置在任何一个位置都可以，但一般都**配置在其他路由规则的最后面**
+
+语法：path: "*" (任意路径) – 前面不匹配就命中最后这个
+
+```js
+import NotFind from '@/views/NotFind'
+
+const router = new VueRouter({
+  routes: [
+    ...
+    { path: '*', component: NotFind } //最后一个
+  ]
+})
+```
+
+#### 5.7.3 模式设置
+
+问题：
+
+路由的路径看起来不自然, 有#，能否切成真正路径形式?
+
+- hash路由(默认) 例如: <http://localhost:8080/#/home>
+- history路由(常用) 例如: <http://localhost:8080/home> (以后上线需要服务器端支持，开发环境webpack给规避掉了history模式的问题)
+
+语法：
+
+```js
+const router = new VueRouter({
+    mode:'histroy', //默认是hash
+    routes:[]
+})
+```
+
+### 5.8 编程式导航
+
+#### 5.8.1 path路径跳转
+
+问题：点击搜索按钮，跳转需要把文本框中输入的内容传到下一个页面如何实现
+
+两种传参方式：查询参数、动态路由传参
+
+两种跳转方式，对于两种传参方式都支持：
+
+① path 路径跳转传参
+
+② name 命名路由跳转传参
+
+path路径跳转传参（query传参）：
+
+```js
+//简单写法
+this.$router.push('/路径?参数名1=参数值1&参数2=参数值2')
+//完整写法
+this.$router.push({
+  path: '/路径',
+  query: {
+    参数名1: '参数值1',
+    参数名2: '参数值2'
+  }
+})
+```
+
+接受参数的方式依然是：$route.query.参数名
+
+path路径跳转传参（动态路由传参）：
+
+```js
+//简单写法
+this.$router.push('/路径/参数值')
+//完整写法
+this.$router.push({
+  path: '/路径/参数值'
+})
+```
+
+接受参数的方式依然是：$route.params.参数值
+
+**注意：**path不能配合params使用
+
+代码实例：
+
+```js
+goSearch () {
+    // 1. 通过路径的方式跳转
+    // (1) this.$router.push('路由路径') [简写]
+    this.$router.push('/search')
+    // (2) this.$router.push({     [完整写法]
+    //         path: '路由路径' 
+    //     })
+    this.$router.push({
+      path: '/search'
+    })
+    // 2. 通过命名路由的方式跳转 (需要给路由起名字) 适合长路径
+    //    this.$router.push({
+    //        name: '路由名'
+    //    })
+    this.$router.push({
+      name: 'search'
+    })
+ }
+```
+
+```js
+// 创建了一个路由对象
+const router = new VueRouter({
+  // 注意：一旦采用了 history 模式，地址栏就没有 #，需要后台配置访问规则
+  mode: 'history',
+  routes: [
+    { path: '/', redirect: '/home' },
+    { path: '/home', component: Home },
+    { name: 'search', path: '/search/:words?', component: Search },
+    { path: '*', component: NotFound }
+  ]
+})
+```
+
+#### 5.8.2 编程式导航-name命名路由传参
+
+name 命名路由跳转传参 (query传参)
+
+```js
+this.$router.push({
+  name: '路由名字',
+  query: {
+    参数名1: '参数值1',
+    参数名2: '参数值2'
+  }
+})
+```
+
+name 命名路由跳转传参 (动态路由传参)
+
+```js 
+this.$router.push({
+  name: '路由名字',
+  params: {
+    参数名: '参数值',
+  }
+})
+```
+
+### 5.9 组件缓存keep-alive
+
+从面经列表 点到 详情页，又点返回，数据重新加载 → **希望回到原来的位置**
+
+* 原因：当路由被**跳转**后，原来所看到的组件就**被销毁**了（会执行组件内的beforeDestroy和destroyed生命周期钩子），**重新返回**后组件又被**重新创建**了（会执行组件内的beforeCreate,created,beforeMount,Mounted生命周期钩子），**所以数据被加载了**
+* 解决方案：利用keep-alive把原来的组件给缓存下来
+
+keep-alive 是 Vue 的内置组件，当它包裹动态组件时，**会缓存不活动的组件实例，而不是销毁**它们。
+
+keep-alive 是一个抽象组件：它自身不会渲染成一个 DOM 元素，也不会出现在父组件中。
+
+优点：
+
+* 在组件切换过程中把切换出去的组件保留在内存中，防止重复渲染DOM，
+* 减少加载时间及性能消耗，提高用户体验性。
+
+① include ： 组件名数组，只有匹配的组件**会被缓存**
+
+② exclude ： 组件名数组，任何匹配的组件都**不会被缓存**
+
+③ max ： 最多可以**缓存多少**组件实例
+
+```html
+<template>
+  <div class="h5-wrapper">
+    <keep-alive :include="['LayoutPage']">
+      <router-view></router-view>
+    </keep-alive>
+  </div>
+</template>
+```
+
+**keep-alive的使用会触发两个生命周期函数**
+
+**activated** 当组件被激活（使用）的时候触发 → 进入这个页面的时候触发
+
+**deactivated** 当组件不被使用的时候触发 → 离开这个页面的时候触发
+
+组件**缓存后**就**不会执行**组件的**created, mounted, destroyed** 等钩子，所以其提供了**actived 和deactived**钩子，帮我们实现业务需求。
+
+
+
+## 六、创建项目规范
+
+### 6.1 VueCli自定义创建项目
+
+1.安装脚手架 (已安装)
+
+```
+npm i @vue/cli -g
+```
+
+2.创建项目
+
+```
+vue create hm-exp-mobile
+```
+
+- 选项
+
+```
+Vue CLI v5.0.8
+? Please pick a preset:
+  Default ([Vue 3] babel, eslint)
+  Default ([Vue 2] babel, eslint)
+> Manually select features     选自定义
+```
+
+- 手动选择功能
+
+![](assets/1682941856172.png)
+
+- 选择vue的版本
+
+```
+  3.x
+> 2.x
+```
+
+- 是否使用history模式
+
+![image-20201025150602129](/assets/1682941888453.png)
+
+- 选择css预处理
+
+![image-20220629175133593](assets/1682941900018.png)
+
+- 选择eslint的风格 （eslint 代码规范的检验工具，检验代码是否符合规范）
+- 比如：const age = 18; => 报错！多加了分号！后面有工具，一保存，全部格式化成最规范的样子
+
+[![68294191856](assets/1682941918562.png)](https://github.com/112312331142/Vue-23-study-note/blob/main/02-MD%E7%AC%94%E8%AE%B0/day06/assets/1682941918562.png)
+
+- 选择校验的时机 （直接回车）
+
+[![68294193579](assets/1682941935794.png)](https://github.com/112312331142/Vue-23-study-note/blob/main/02-MD%E7%AC%94%E8%AE%B0/day06/assets/1682941935794.png)
+
+- 选择配置文件的生成方式 （直接回车）
+
+[![68294194798](assets/1682941947985.png)](assets/1682941947985.png)
+
+- 是否保存预设，下次直接使用？ => 不保存，输入 N
+
+![68294196155](assets/1682941961551.png)
+
+- 等待安装，项目初始化完成
+
+![68294197476](assets/1682941974763.png)
+
+- 启动项目
+
+```
+npm run serve
+```
+
+### 6.2 ESLint代码规范
+
+代码规范：一套写代码的约定规则，例如”赋值符号的左右是否需要空格“
+
+下面是这份规则中的一小部分：
+
+- *字符串使用单引号* – 需要转义的地方除外
+- *无分号* – [这](http://blog.izs.me/post/2353458699/an-open-letter-to-javascript-leaders-regarding)[没什么不好。](http://inimino.org/~inimino/blog/javascript_semicolons)[不骗你！](https://www.youtube.com/watch?v=gsfbh17Ax9I)
+- *关键字后加空格* `if (condition) { ... }`
+- *函数名后加空格* `function name (arg) { ... }`
+- 坚持使用全等 `===` 摒弃 `==` 一但在需要检查 `null || undefined` 时可以使用 `obj == null`
+- ......
+
+如果你的代码不符合standard的要求，eslint会跳出来刀子嘴，豆腐心地提示你。
+
+* 手动修正：
+
+  根据错误提示来一项一项手动修正。
+
+  如果你不认识命令行中的语法报错是什么意思，你可以根据错误代码（func-call-spacing, space-in-parens,.....）去 ESLint 规则列表中查找其具体含义。
+
+  打开 [ESLint 规则表](https://zh-hans.eslint.org/docs/latest/rules/)，使用页面搜索（Ctrl + F）这个代码，查找对该规则的一个释义。
+
+通过eslint插件来实现自动修正：
+
+> 1. eslint会自动高亮错误显示
+> 2. 通过配置，eslint会自动帮助我们修复错误
+
+- 如何安装
+
+![68294292098](assets/1682942920986.png)
+
+- 如何配置
+
+```json
+// 当保存的时候，eslint自动帮我们修复错误
+"editor.codeActionsOnSave": {
+    "source.fixAll": true
+},
+// 保存代码，不自动格式化
+"editor.formatOnSave": false
+```
+
+- 注意：eslint的配置文件必须在根目录下，这个插件才能才能生效。打开项目必须以根目录打开，一次打开一个项目
+- 注意：使用了eslint校验之后，把vscode带的那些格式化工具全禁用了 Beatify
+
+settings.json 参考
+
+```json
+{
+    "window.zoomLevel": 2,
+    "workbench.iconTheme": "vscode-icons",
+    "editor.tabSize": 2,
+    "emmet.triggerExpansionOnTab": true,
+    // 当保存的时候，eslint自动帮我们修复错误
+    "editor.codeActionsOnSave": {
+        "source.fixAll": true
+    },
+    // 保存代码，不自动格式化
+    "editor.formatOnSave": false
+}
+```
+
+### 6.3 vuex
+
+#### 6.3.1 vuex基本认知
+
+vuex是由一个vue的状态管理工具，状态就是数据
+
+使用场景：
+
+* 某个状态在很多组件来使用
+* 多个组件共同维护一份数据
+
+优势：
+
+* 共同维护一份数据，数据集中化管理
+* 响应式变化
+* 操作简洁（vuex提供了一些辅助函数）
+
+#### 6.3.2 创建空仓库
+
+安装 vuex
+
+安装vuex与vue-router类似，vuex是一个独立存在的插件，如果脚手架初始化没有选 vuex，就需要额外安装。
+
+```
+yarn add vuex@3 或者 npm i vuex@3
+```
+
+新建 `store/index.js` 专门存放 vuex
+
+ 为了维护项目目录的整洁，在src目录下新建一个store目录其下放置一个index.js文件。 (和 `router/index.js` 类似)
+
+创建仓库 store/index.js
+
+```js
+// 导入 vue
+import Vue from 'vue'
+// 导入 vuex
+import Vuex from 'vuex'
+// vuex也是vue的插件, 需要use一下, 进行插件的安装初始化
+Vue.use(Vuex)
+
+// 创建仓库 store
+const store = new Vuex.Store()
+
+// 导出仓库
+export default store
+```
+
+ 在 main.js 中导入挂载到 Vue 实例上
+
+```js
+import Vue from 'vue'
+import App from './App.vue'
+import store from './store'
+
+Vue.config.productionTip = false
+
+new Vue({
+  render: h => h(App),
+  store
+}).$mount('#app')
+```
+
+此刻起, 就成功创建了一个 **空仓库!!**
+
+测试打印Vuex
+
+App.vue
+
+```js
+created(){
+  console.log(this.$store)
+}
+```
+
+#### 6.3.3 state状态
+
+提供数据：
+
+State提供唯一的公共数据源，所有共享的数据都要统一放到Store中的State中存储。
+
+打开项目中的store.js文件，在state对象中可以添加我们要共享的数据。
+
+```js
+// 创建仓库 store
+const store = new Vuex.Store({
+  // state 状态, 即数据, 类似于vue组件中的data,
+  // 区别：
+  // 1.data 是组件自己的数据, 
+  // 2.state 中的数据整个vue项目的组件都能访问到
+  state: {
+    count: 101
+  }
+})
+```
+
+访问Vuex中的数据：
+
+如何在组件中获取count：
+
+1. 通过$store直接访问 —> {{ $store.state.count }}
+2. 通过辅助函数mapState 映射计算属性 —> {{ count }}
+
+通过$store访问的语法
+
+```js
+获取 store：
+ 1.Vue模板中获取 this.$store
+ 2.js文件中获取 import 导入 store
+
+
+模板中：     {{ $store.state.xxx }}
+组件逻辑中：  this.$store.state.xxx
+JS模块中：   store.state.xxx
+```
+
+* 模板中使用
+
+组件中可以使用 **$store** 获取到vuex中的store对象实例，可通过**state**属性属性获取**count**， 如下
+
+```
+<h1>state的数据 - {{ $store.state.count }}</h1>
+```
+
+* 组件逻辑中使用
+
+将state属性定义在计算属性中 <https://vuex.vuejs.org/zh/guide/state.html>
+
+```js
+<h1>state的数据 - {{ count }}</h1>
+
+// 把state中数据，定义在组件内的计算属性中
+  computed: {
+    count () {
+      return this.$store.state.count
+    }
+  }
+```
+
+* js文件中使用
+
+```js
+//main.js
+
+import store from "@/store"
+
+console.log(store.state.count)
+```
+
+通过辅助函数简化：
+
+mapState是辅助函数，帮助我们把store中的数据自动映射到组件的计算属性中
+
+* 第一步：导入mapState (mapState是vuex中的一个函数)
+
+```
+import { mapState } from 'vuex'
+```
+
+* 第二步：采用数组形式引入state属性
+
+```
+mapState(['count']) 
+```
+
+> 上面代码的最终得到的是 **类似于**
+
+```
+count () {
+    return this.$store.state.count
+}
+```
+
+* 第三步：利用**展开运算符**将导出的状态映射给计算属性
+
+```
+  computed: {
+    ...mapState(['count'])
+  }
+ <div> state的数据：{{ count }}</div>
+```
+
+### 6.4  mutations
+
+#### 6.4.1 核心概念
+
+明确 vuex 同样遵循单向数据流，组件中不能直接修改仓库的数据
+
+```vue
+<button @click="handleAdd">值 + 1</button>
+methods:{
+	 handleAdd (n) {
+      // 错误代码(vue默认不会监测，监测需要成本)
+       this.$store.state.count++
+      // console.log(this.$store.state.count) 
+    },
+}
+```
+
+通过 `strict: true` 可以开启严格模式,开启严格模式后，直接修改state中的值会报错
+
+> **state数据的修改只能通过mutations，并且mutations必须是同步的**
+
+格式说明：
+
+mutations是一个对象，对象中存放修改state的方法
+
+```js
+mutations: {
+    // 方法里参数 第一个参数是当前store的state属性
+    // payload 载荷 运输参数 调用mutaiions的时候 可以传递参数 传递载荷
+    addCount (state) {
+      state.count += 1
+    }
+  },
+```
+
+组件中提交 mutations：
+
+```js
+this.$store.commit('addCount')
+```
+
+通过mutations修改state的步骤：
+
+1.定义 mutations 对象，对象中存放修改 state 的方法
+
+2.组件中提交调用 mutations(通过$store.commit('mutations的方法名'))
+
+#### 6.4.2 mutations传参语法
+
+提交 mutation 是可以传递参数的 `this.$store.commit('xxx',  参数)`
+
+* 提供mutation函数（带参数）
+
+```js
+mutations: {
+  ...
+  addCount (state, count) {
+    state.count = count
+  }
+},
+```
+
+* 提交mutation
+
+```js
+handle ( ) {
+  this.$store.commit('addCount', 10)
+}
+```
+
+**小tips: 提交的参数只能是一个, 如果有多个参数要传, 可以传递一个对象**
+
+```js
+this.$store.commit('addCount', {
+  count: 10
+})
+```
+
+#### 6.4.3 mapMutations辅助函数
+
+> mapMutations和mapState很像，它把位于mutations中的方法提取了出来，我们可以将它导入
+
+```js
+import  { mapMutations } from 'vuex'
+methods: {
+    ...mapMutations(['addCount'])
+}
+```
+
+> 上面代码的含义是将mutations的方法导入了methods中，等价于
+
+```js
+methods: {
+      // commit(方法名, 载荷参数)
+      addCount () {
+          this.$store.commit('addCount')
+      }
+ }
+```
+
+此时，就可以直接通过this.addCount调用了
+
+```html
+<button @click="addCount">值+1</button>
+```
+
+但是请注意： Vuex中mutations中要求不能写异步代码，如果有异步的ajax请求，应该放置在actions中
