@@ -1528,7 +1528,7 @@ keep-alive 是一个抽象组件：它自身不会渲染成一个 DOM 元素，�
 
 
 
-## 六、创建项目规范
+## 六、创建项目规范和核心概念
 
 ### 6.1 VueCli自定义创建项目
 
@@ -1686,7 +1686,7 @@ vuex是由一个vue的状态管理工具，状态就是数据
 
 安装vuex与vue-router类似，vuex是一个独立存在的插件，如果脚手架初始化没有选 vuex，就需要额外安装。
 
-```
+```cmd
 yarn add vuex@3 或者 npm i vuex@3
 ```
 
@@ -1952,3 +1952,400 @@ methods: {
 ```
 
 但是请注意： Vuex中mutations中要求不能写异步代码，如果有异步的ajax请求，应该放置在actions中
+
+### 6.5 actions
+
+> state是存放数据的，mutations是同步更新数据 (便于监测数据的变化, 更新视图等, 方便于调试工具查看变化)，
+>
+> actions则负责进行异步操作
+
+**说明：mutations必须是同步的**
+
+**需求: 一秒钟之后, 要给一个数 去修改state**
+
+**1.定义actions**
+
+```js
+mutations: {
+  changeCount (state, newCount) {
+    state.count = newCount
+  }
+}
+
+actions: {
+  setAsyncCount (context, num) {
+    // 一秒后, 给一个数, 去修改 num
+    setTimeout(() => {
+      context.commit('changeCount', num)
+    }, 1000)
+  }
+},
+```
+
+**2.组件中通过dispatch调用**
+
+```js
+setAsyncCount () {
+  this.$store.dispatch('setAsyncCount', 666)
+}
+```
+
+> mapActions 是把位于 actions中的方法提取了出来，映射到组件methods中
+
+Son2.vue
+
+```js
+import { mapActions } from 'vuex'
+methods: {
+   ...mapActions(['changeCountAction'])
+}
+
+//mapActions映射的代码 本质上是以下代码的写法
+//methods: {
+//  changeCountAction (n) {
+//    this.$store.dispatch('changeCountAction', n)
+//  },
+//}
+```
+
+直接通过 this.方法 就可以调用
+
+```html
+<button @click="changeCountAction(200)">+异步</button>
+```
+
+### 6.6 getters
+
+> 除了state之外，有时我们还需要从state中**筛选出符合条件的一些数据**，这些数据是依赖state的，此时会用到getters
+
+例如，state中定义了list，为1-10的数组，
+
+```js
+state: {
+    list: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+}
+```
+
+组件中，需要显示所有大于5的数据，正常的方式，是需要list在组件中进行再一步的处理，但是getters可以帮助我们实现它
+
+定义getters:
+
+```js
+getters: {
+  // getters函数的第一个参数是 state
+  // 必须要有返回值
+   filterList:  state =>  state.list.filter(item => item > 5)
+}
+```
+
+使用getters
+
+* 原始方式-$store
+
+```html
+<div>{{ $store.getters.filterList }}</div>
+```
+
+* 辅助函数 - mapGetters
+
+```HTML
+computed: {
+    ...mapGetters(['filterList'])
+}
+ <div>{{ filterList }}</div>
+```
+
+### 6.7  module
+
+由于vuex使用单一状态树，应用的所有状态会集中到一个比较大的对象。当应用变得非常复杂时，store对象就有可能变得相当臃肿（当项目变得越来越大的时候，Vuex会变得越来越难以维护）
+
+定义两个模块 **user** 和 **setting**
+
+user中管理用户的信息状态 userInfo `modules/user.js`
+
+```js
+const state = {
+  userInfo: {
+    name: 'zs',
+    age: 18
+  }
+}
+
+const mutations = {}
+
+const actions = {}
+
+const getters = {}
+
+export default {
+  state,
+  mutations,
+  actions,
+  getters
+}
+```
+
+setting中管理项目应用的 主题色 theme，描述 desc， `modules/setting.js`
+
+```js
+const state = {
+  theme: 'dark'
+  desc: '描述真呀真不错'
+}
+
+const mutations = {}
+
+const actions = {}
+
+const getters = {}
+
+export default {
+  state,
+  mutations,
+  actions,
+  getters
+}
+```
+
+在`store/index.js`文件中的modules配置项中，注册这两个模块
+
+```js
+import user from './modules/user'
+import setting from './modules/setting'
+
+const store = new Vuex.Store({
+    modules:{
+        user,
+        setting
+    }
+})
+```
+
+使用模块中的数据, 可以直接通过模块名访问 `$store.state.模块名.xxx` => `$store.state.setting.desc`
+
+也可以通过 mapState 映射
+
+### 6.8 module进阶语法
+
+#### 6.8.1 获取模块内的state数据
+
+目标：
+
+掌握模块中 state 的访问语法
+
+尽管已经分模块了，但其实子模块的状态，还是会挂到根级别的 state 中，属性名就是模块名
+
+使用模块中的数据
+
+1. 直接通过模块名访问 $store.state.模块名.xxx
+2. 通过 mapState 映射：
+3. 默认根级别的映射 mapState([ 'xxx' ])
+4. 子模块的映射 ：mapState('模块名', ['xxx']) - 需要开启命名空间 **namespaced:true**
+
+`modules/user.js`
+
+```js
+const state = {
+  userInfo: {
+    name: 'zs',
+    age: 18
+  },
+  myMsg: '我的数据'
+}
+
+const mutations = {
+  updateMsg (state, msg) {
+    state.myMsg = msg
+  }
+}
+
+const actions = {}
+
+const getters = {}
+
+export default {
+  namespaced: true,
+  state,
+  mutations,
+  actions,
+  getters
+}
+```
+
+代码示例
+
+$store直接访问
+
+```js
+$store.state.user.userInfo.name
+```
+
+mapState辅助函数访问
+
+```js
+...mapState('user', ['userInfo']),
+...mapState('setting', ['theme', 'desc']),
+```
+
+#### 6.8.2 获取模块内的getters数据
+
+使用模块中 getters 中的数据：
+
+1. 直接通过模块名访问` $store.getters['模块名/xxx ']`
+2. 通过 mapGetters 映射
+   1. 默认根级别的映射 `mapGetters([ 'xxx' ]) `
+   2. 子模块的映射 `mapGetters('模块名', ['xxx'])` - 需要开启命名空间
+
+代码演示
+
+`modules/user.js`
+
+``` js
+const getters = {
+  // 分模块后，state指代子模块的state
+  UpperCaseName (state) {
+    return state.userInfo.name.toUpperCase()
+  }
+}
+```
+
+Son1.vue 直接访问getters
+
+```js
+<!-- 测试访问模块中的getters - 原生 -->
+<div>{{ $store.getters['user/UpperCaseName'] }}</div>
+```
+
+Son2.vue 通过命名空间访问
+
+```js
+computed:{
+  ...mapGetters('user', ['UpperCaseName'])
+}
+```
+
+#### 6.8.3 获取模块内的mutations方法
+
+默认模块中的 mutation 和 actions 会被挂载到全局，**需要开启命名空间**，才会挂载到子模块。
+
+调用方式：
+
+1. 直接通过 store 调用 $store.commit('模块名/xxx ', 额外参数)
+2. 通过 mapMutations 映射
+   1. 默认根级别的映射 mapMutations([ 'xxx' ])
+   2. 子模块的映射 mapMutations('模块名', ['xxx']) - 需要开启命名空间
+
+代码实现:
+
+`modules/user.js`
+
+```js
+const mutations = {
+  setUser (state, newUserInfo) {
+    state.userInfo = newUserInfo
+  }
+}
+```
+
+`modules/setting.js`
+
+```js
+const mutations = {
+  setTheme (state, newTheme) {
+    state.theme = newTheme
+  }
+}
+```
+
+Son1.vue
+
+```html
+<button @click="updateUser">更新个人信息</button> 
+<button @click="updateTheme">更新主题色</button>
+
+
+export default {
+  methods: {
+    updateUser () {
+      // $store.commit('模块名/mutation名', 额外传参)
+      this.$store.commit('user/setUser', {
+        name: 'xiaowang',
+        age: 25
+      })
+    }, 
+    updateTheme () {
+      this.$store.commit('setting/setTheme', 'pink')
+    }
+  }
+}
+```
+
+Son2.vue
+
+```html
+<button @click="setUser({ name: 'xiaoli', age: 80 })">更新个人信息</button>
+<button @click="setTheme('skyblue')">更新主题</button>
+
+methods:{
+// 分模块的映射
+...mapMutations('setting', ['setTheme']),
+...mapMutations('user', ['setUser']),
+}
+```
+
+#### 6.8.4 获取模块内的actions方法
+
+注意：
+
+默认模块中的 mutation 和 actions 会被挂载到全局，**需要开启命名空间**，才会挂载到子模块。
+
+调用语法：
+
+1. 直接通过 store 调用 $store.dispatch('模块名/xxx ', 额外参数)
+2. 通过 mapActions 映射
+   1. 默认根级别的映射 mapActions([ 'xxx' ])
+   2. 子模块的映射 mapActions('模块名', ['xxx']) - 需要开启命名空间
+
+代码实现：
+
+需求：
+
+`modules/user.js`
+
+```js
+const actions = {
+  setUserSecond (context, newUserInfo) {
+    // 将异步在action中进行封装
+    setTimeout(() => {
+      // 调用mutation   context上下文，默认提交的就是自己模块的action和mutation
+      context.commit('setUser', newUserInfo)
+    }, 1000)
+  }
+}                      
+```
+
+Son1.vue 直接通过store调用
+
+```js
+<button @click="updateUser2">一秒后更新信息</button>
+
+methods:{
+    updateUser2 () {
+      // 调用action dispatch
+      this.$store.dispatch('user/setUserSecond', {
+        name: 'xiaohong',
+        age: 28
+      })
+    },
+}
+```
+
+Son2.vue mapActions映射
+
+```js
+<button @click="setUserSecond({ name: 'xiaoli', age: 80 })">一秒后更新信息</button>
+
+methods:{
+  ...mapActions('user', ['setUserSecond'])
+}
+```

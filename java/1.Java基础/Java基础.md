@@ -28,6 +28,7 @@ ctrl alt v 自动生成左边
 ctrl alt l 自动格式化
 ctrl alt t surround with
 ctrl alt 左键 回到上次的地方
+ctrl alt shift j 选中同一个
 
 ctrl +h 查看继承
 ctrl +n 查找类
