@@ -189,5 +189,111 @@ npm init vue@latest
 
 在实际工作中的推荐：推荐使用ref函数，减少记忆负担
 
-### 2.3 computed
+### 2.3 computed计算属性
+
+> 计算属性基本思想和Vue2保持一致，组合式API下的计算属性只是修改了API写法
+
+```vue
+<script setup>
+// 导入
+import {ref, computed } from 'vue'
+// 原始数据
+const count = ref(0)
+// 计算属性
+const doubleCount = computed(()=>count.value * 2)
+
+// 原始数据
+const list = ref([1,2,3,4,5,6,7,8])
+// 计算属性list
+const filterList = computed(item=>item > 2)
+</script>
+```
+
+### 2.4 watch
+
+> 侦听一个或者多个数据的变化，数据变化时执行回调函数，俩个额外参数 immediate控制立刻执行，deep开启深度侦听
+
+#### 1. 侦听单个数据
+
+```vue
+<script setup>
+  // 1. 导入watch
+  import { ref, watch } from 'vue'
+  const count = ref(0)
+  // 2. 调用watch 侦听变化
+  watch(count, (newValue, oldValue)=>{
+    console.log(`count发生了变化，老值为${oldValue},新值为${newValue}`)
+  })
+</script>
+```
+
+## 2. 侦听多个数据
+
+> 侦听多个数据，第一个参数可以改写成数组的写法
+
+```vue
+<script setup>
+  // 1. 导入watch
+  import { ref, watch } from 'vue'
+  const count = ref(0)
+  const name = ref('cp')
+  // 2. 调用watch 侦听变化
+  watch([count, name], ([newCount, newName],[oldCount,oldName])=>{
+    console.log(`count或者name变化了，[newCount, newName],[oldCount,oldName])
+  })
+</script>
+```
+
+## 3. immediate
+
+> 在侦听器创建时立即出发回调，响应式数据变化之后继续执行回调
+
+```vue
+<script setup>
+  // 1. 导入watch
+  import { ref, watch } from 'vue'
+  const count = ref(0)
+  // 2. 调用watch 侦听变化
+  watch(count, (newValue, oldValue)=>{
+    console.log(`count发生了变化，老值为${oldValue},新值为${newValue}`)
+  },{
+    immediate: true
+  })
+</script>
+```
+
+## 4. deep
+
+> 通过watch监听的ref对象默认是浅层侦听的，直接修改嵌套的对象属性不会触发回调执行，需要开启deep
+
+```vue
+<script setup>
+  // 1. 导入watch
+  import { ref, watch } from 'vue'
+  const state = ref({ count: 0 })
+  // 2. 监听对象state
+  watch(state, ()=>{
+    console.log('数据变化了')
+  })
+  const changeStateByCount = ()=>{
+    // 直接修改不会引发回调执行
+    state.value.count++
+  }
+</script>
+
+<script setup>
+  // 1. 导入watch
+  import { ref, watch } from 'vue'
+  const state = ref({ count: 0 })
+  // 2. 监听对象state 并开启deep
+  watch(state, ()=>{
+    console.log('数据变化了')
+  },{deep:true})
+  const changeStateByCount = ()=>{
+    // 此时修改可以触发回调
+    state.value.count++
+  }
+</script>
+
+```
 
