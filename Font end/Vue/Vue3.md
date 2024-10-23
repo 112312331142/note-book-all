@@ -188,3 +188,6 @@ npm init vue@latest
 * ref函数内部的实现依赖于reactive函数
 
 在实际工作中的推荐：推荐使用ref函数，减少记忆负担
+
+### 2.3 computed
+
