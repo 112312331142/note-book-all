@@ -227,7 +227,7 @@ const filterList = computed(item=>item > 2)
 </script>
 ```
 
-## 2. 侦听多个数据
+#### 2. 侦听多个数据
 
 > 侦听多个数据，第一个参数可以改写成数组的写法
 
@@ -239,12 +239,12 @@ const filterList = computed(item=>item > 2)
   const name = ref('cp')
   // 2. 调用watch 侦听变化
   watch([count, name], ([newCount, newName],[oldCount,oldName])=>{
-    console.log(`count或者name变化了，[newCount, newName],[oldCount,oldName])
+    console.log(`count或者name变化了，[newCount, newName],[oldCount,oldName]`)
   })
 </script>
 ```
 
-## 3. immediate
+#### 3. immediate
 
 > 在侦听器创建时立即出发回调，响应式数据变化之后继续执行回调
 
@@ -262,7 +262,7 @@ const filterList = computed(item=>item > 2)
 </script>
 ```
 
-## 4. deep
+#### 4. deep
 
 > 通过watch监听的ref对象默认是浅层侦听的，直接修改嵌套的对象属性不会触发回调执行，需要开启deep
 
