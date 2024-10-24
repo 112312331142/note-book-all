@@ -104,9 +104,6 @@ C++11标准中提供了使用{}对标准容器进行初始化
   `typedef unsigned int uint_t`
 
 ```c++
-//
-// Created by Administrator on 2024/10/20.
-//
 #include "iostream"
 #include "string"
 #include "map"
@@ -131,53 +128,176 @@ int main() {
 }
 ```
 
+### 6. final关键字
 
-
-
-
-
-
-
-
-
-#### 1 新基础类型
-
-整数类型： long long 
+final关键字修饰的类不能被其他类继承
 
 ```cpp
-int main(){
-    long long x=52525LL;
-    unsigned long long y=4141LL;
-
-    cout<<numeric_limits<long long>::max() <<" "<<numeric_limits<long long>::min()<<endl;
-}
+class A final{
+public:
+    A(){}
+};
+class B:public A{
+    
+};
 ```
+
+final用来修饰虚函数，则表示该虚函数不可被子类重写
+
+### 7.右值引用
+
+#### 7.1 左值和右值
+
+之所以要进行右值引用，是因为右值往往是没有名称的，在实际开发中我们可能需要对右值进行修改，因此要使用它只能借助引用的方式
+
+选定`&&`表示右值引用
+
+1. 左值（lvalue）： 左值是指一个具有持久状态的对象，可以出现在赋值表达式的左侧。
+
+  特点:
+
+  * 具有名称（可以被引用）。
+  * 具有持久性，即在表达式求值后仍然存在。
+  * 可以取地址（使用 & 运算符）。
+
+2. 右值（rvalue）： 右值是指一个临时对象，通常出现在赋值表达式的右侧。
+   特点:
+
+   * 不具有名称（不能被直接引用）。
+   * 通常是临时的，表达式求值后即消失。
+   * 不能取地址（使用 & 运算符会导致编译错误）。
+
+#### 7.2 左值引用和右值引用
+
+1. 左值引用（lvalue reference）： 左值引用必须绑定到一个左值。
+
+   语法: T&
+
+   特点: 绑定到一个具有持久状态的对象，该对象可以取地址。
+
+2. 右值引用：之所以要进行右值引用，是因为右值引用往往是没有名称的，在实际开发中我们可能需要对右值进行修改
+
+   `类型&& 引用变量名字 = 右值`
+
+#### 7.3 右值引用的实际用途
+
+* 移动语义：如果一个类中涉及到资源管理（比如指针），用户必须显示提供拷贝构造、赋值运算符重载以及析构函数，否则编译器将会自动生成一个默认的，如果遇到拷贝对象或者对象之间相互赋值，就会出错  
+
+  将临时对象的资源转移到s2中
+
+* 我们用对象a初始化对象b，然后对象a我们就不再使用，但是对象a的空间还在，既然拷贝拷贝构造函数，实际上就是把a对象的内容复制一份到b中，那么为什么我们不能直接使用a的空间。这样就避免乐新的空间的分配，大大降低了构造的成本。这就是移动构造函数的初衷
+
+* 拷贝的构造函数中，对于指针，我们一定要采用深层复制，而移动构造函数中，对于指针，我么采用浅层复制，浅层复制之所以危险，是因为两个指针共同指向同一片内存区域，若第一个指针将其释放，另一个指针的指向就不合法了。所以我们只要避免第一个指针释放空间就可以了，避免的方法就是将第一个指针（比如a->value）置为NULL，这样在调用析构函数的时候，由于判断是否为NULL的语句，所以析构a的时候并不会回收a->value指向的空间
+
+* 移动构造函数的参数和拷贝构造函数不同，拷贝构造函数的参数是一个左值引用，但是移动构造函数的初值是一个右值引用。意味着，移动构造函数的参数是一个右值或者将亡值的引用。也就是说，只用用一个右值，或者将亡值初始化成另一个对象的时候，才会调用移动构造函数，而那个move语句，就是将一个左值变成一个将亡值
+
+move函数：
+
+唯一的功能就是：将一个左值强制转换为右值引用，通过右值引用使用该值，实现移动语义
+
+注意：被转换的左值，其声明周期并没有随着左右值的转化而改变，即std::move转化的左值变量lvalue不会被销毁
+
+为了保证移动语义的传递，程序员在编写移动构造函数时，最好使用std::move转移拥有资源的成员为右值
+
+### 8.智能指针
+
+在C++11中通过引入智能指针的概念，使得C++程序员不需要手动释放内存
+
+#### 8.1 概述
+
+智能指针是原始指针的封装，其优点是自动分配内存
+
+并不是所有的指针都可以封装成智能指针，很多时候原始值真能要更方便
+
+各种指针中最常用的是裸指针，其次是unique_ptr和shared_ptr,weak_ptr是shared_ptr的一个补充
+
+指针指针只能解决一部分问题，即独占/共享所有权指针的释放、传输
+
+智能指针没有从根本上解决C++内存安全问题，不加以注意依然会造成内存安全问题
+
+#### 8.2 unique_ptr
+
+* 在任何给定的时刻，只能有一个指针管理内存
+* 当指针超出作用域时，内存将自动释放
+* 该类型指针不可Copy，只可以Move
+
+三种创建方式：
+
+* 通过已有裸指针创建
+* 通过new创建
+* 通过`std::make_unique`创建
+
+unique_ptr可以通过get()获取地址
+
+unique_ptr实现了`->`与`*`
+
+* 可以通过->调用成员函数
+* 可以通过*调用解引用
 
 ```cpp
-    char16_t c16='s';
-    char32_t c32= u's';
-```
-
-#### 2 内联和嵌套命名空间
-
-```C++
 #include "iostream"
-namespace Parent{
-    namespace Child1{
-        void fn() {
-            std::cout << "1 ";
-        }
-    }
-    inline namespace Child2{
-        void fn(){
-            std::cout<<"2 ";
-        }
-    }
-}
+#include "memory"
+#include "cat.h"
 
-int main(){
-    Parent::Child1::fn();
-    Parent::Child2::fn();
+int main(int argc, char *argv[]) {
+    std::cout << argc << " " << argv << std::endl;
+//    Cat c1("OK");
+//    c1.cat_info();
+//    {
+//        Cat c1{"OK"};
+//        c1.cat_info();
+//    }
+
+    //row pointer 不会调用析构函数
+/*    Cat *c_p1 = new Cat("yy");
+    int *i_p1 = new int(100);
+    c_p1->cat_info();
+    {//局部作用域
+        Cat *c_p1 = new Cat("yy_scope");
+        i_p1 = new int(200);
+        c_p1->cat_info();
+        delete c_p1;
+    }
+    delete c_p1;
+    std::cout << *i_p1 << std::endl;//200*/
+
+    // 三种创建方式
+    //第一种
+    Cat *c_p2 = new Cat("ys");
+    std::unique_ptr<Cat> u_c_p2(c_p2);
+//    c_p2->cat_info();
+//    u_c_p2->cat_info();
+//    c_p2->set_cat_name("ooooo");
+//    u_c_p2->cat_info();
+    c_p2 = nullptr;
+    delete c_p2;
+    u_c_p2->cat_info();
+
+    //第二种
+    std::unique_ptr<Cat> u_c_p3(new Cat("dd"));
+    std::unique_ptr<int> u_i_p3(new int(1000));
+    u_c_p3->cat_info();
+    u_c_p3->set_cat_name("xin");
+    u_c_p3->cat_info();
+    std::cout << *u_i_p3 << std::endl;
+    std::cout << "int address:" << u_i_p3.get() << std::endl;
+    std::cout << "cat address:" << u_c_p3.get() << std::endl;
+
+
+    //第三种 std::make_unique
+    std::unique_ptr<Cat> u_c_p4 = std::make_unique<Cat>();
+    std::unique_ptr<int> u_i_p4 = std::make_unique<int>(2000);
+    u_c_p3->cat_info();
+    u_c_p3->set_cat_name("oo00");
+    u_c_p3->cat_info();
+    std::cout << *u_i_p4 << std::endl;
+    std::cout << "int address:" << u_i_p4.get() << std::endl;
+    std::cout << "cat address:" << u_c_p4.get() << std::endl;
+
+    //get和常量类型
+
+    std::cout << "-----------end-------------" << std::endl;
+    return 0;
 }
 ```
 

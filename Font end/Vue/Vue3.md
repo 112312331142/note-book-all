@@ -297,3 +297,240 @@ const filterList = computed(item=>item > 2)
 
 ```
 
+### 2.5 声明周期函数
+
+![image.png](assets/6.png)
+
+> 1. 导入生命周期函数
+> 2. 执行生命周期函数，传入回调
+
+```vue
+<scirpt setup>
+import { onMounted } from 'vue'
+onMounted(()=>{
+  // 自定义逻辑
+})
+</script>
+```
+
+### 2.6 父传子
+
+#### 2.6.1 父传子
+
+> 基本思想
+>
+> 1. 父组件中给子组件绑定属性
+> 2. 子组件内部通过props选项接收数据
+
+![image.png](assets/7.png)
+
+#### 2.6.2 子传父
+
+> 基本思想
+>
+> 1. 父组件中给子组件标签通过@绑定事件
+> 2. 子组件内部通过 emit 方法触发事件
+
+![image.png](assets/8.png)
+
+### 2.7 模板引用
+
+> 概念：通过 ref标识 获取真实的 dom对象或者组件实例对象
+
+> 实现步骤：
+>
+> 1. 调用ref函数生成一个ref对象
+> 2. 通过ref标识绑定ref对象到标签
+
+![image.png](assets/9.png)
+
+> 默认情况下在 <script setup>语法糖下组件内部的属性和方法是不开放给父组件访问的，可以通过defineExpose编译宏指定哪些属性和方法容许访问
+> 说明：指定testMessage属性可以被访问到
+
+![image.png](assets/10.png)
+
+### 2.8 provide和inject
+
+作用：顶级组件向任意的底层组件传递数据和方法，实现跨层组件通信
+
+![image.png](assets/11.png)
+
+顶层组件通过provide函数提供数据
+
+底层组件通过inject函数获取数据
+
+![image.png](assets/12.png)
+
+![image.png](assets/13.png)
+
+![image.png](assets/14.png)
+
+## 三、Vue3.3新特性
+
+### 3.1 defineOptions
+
+背景说明：
+
+有 <script setup> 之前，如果要定义 props, emits 可以轻而易举地添加一个与 setup 平级的属性。 
+
+但是用了 <script setup> 后，就没法这么干了 setup 属性已经没有了，自然无法添加与其平级的属性。
+
+------
+
+为了解决这一问题，引入了 defineProps 与 defineEmits 这两个宏。但这只解决了 props 与 emits 这两个属性。
+
+如果我们要定义组件的 name 或其他自定义的属性，还是得回到最原始的用法——再添加一个普通的 <script> 标签。
+
+这样就会存在两个 <script> 标签。让人无法接受。
+
+------
+
+所以在 Vue 3.3 中新引入了 defineOptions 宏。顾名思义，主要是用来定义 Options API 的选项。可以用 defineOptions 定义任意的选项， props, emits, expose, slots 除外（因为这些可以使用 defineXXX 来做到）
+
+![image-20230704082955748](assets/image-20230704082955748.png)
+
+### 3.2 defineModel
+
+在Vue3中，自定义组件上使用v-model, 相当于传递一个modelValue属性，同时触发 update:modelValue 事件
+
+![image-20230704083027349](assets/image-20230704083027349.png)
+
+我们需要先定义 props，再定义 emits 。其中有许多重复的代码。如果需要修改此值，还需要手动调用 emit 函数。
+
+于是乎 defineModel 诞生了。
+
+![image-20230704083056549](assets/image-20230704083056549.png)
+
+生效需要配置 vite.config.js
+
+```jsx
+import { fileURLToPath, URL } from 'node:url'
+
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [
+    vue({
+      script: {
+        defineModel: true
+      }
+    }),
+  ],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  }
+})
+```
+
+
+
+## 四、Pinia快速入门
+
+### 4.1. 什么是Pinia
+
+Pinia 是 Vue 的专属的最新状态管理库 ，是 Vuex 状态管理工具的替代品
+![image.png](assets/31.png)
+
+
+
+### 4.2 手动添加Pinia到Vue项目
+
+后面在实际开发项目的时候，Pinia可以在项目创建时自动添加，现在我们初次学习，从零开始：
+
+1. 使用 Vite 创建一个空的 Vue3项目
+
+```bash
+npm init vite@latest
+```
+
+1. 按照官方文档安装 pinia 到项目中 
+
+### 4.3. Pinia基础使用
+
+1. 定义store
+2. 组件使用store
+
+![image.png](assets/32.png)
+
+### 4.4. getters实现
+
+Pinia中的 getters 直接使用 computed函数 进行模拟, 组件中需要使用需要把 getters return出去
+
+![image.png](assets/33.png)
+
+### 4.5. action异步实现
+
+方式：异步action函数的写法和组件中获取异步数据的写法完全一致
+
+- 接口地址：http://geek.itheima.net/v1_0/channels
+- 请求方式：get
+- 请求参数：无
+
+![image.png](assets/34.png)
+
+需求：在Pinia中获取频道列表数据并把数据渲染App组件的模板中
+![image.png](assets/35.png)
+
+### 4.6. storeToRefs工具函数
+
+使用storeToRefs函数可以辅助保持数据（state + getter）的响应式解构
+![image.png](assets/36.png)
+
+### 4.7. Pinia的调试
+
+Vue官方的 dev-tools 调试工具 对 Pinia直接支持，可以直接进行调试
+![image.png](assets/37.png)
+
+### 4.8. Pinia持久化插件
+
+官方文档：https://prazdevs.github.io/pinia-plugin-persistedstate/zh/
+
+1. 安装插件 pinia-plugin-persistedstate
+
+```jsx
+npm i pinia-plugin-persistedstate
+```
+
+1. 使用 main.js
+
+```jsx
+import persist from 'pinia-plugin-persistedstate'
+...
+app.use(createPinia().use(persist))
+```
+
+1. 配置 store/counter.js
+
+```jsx
+import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
+
+export const useCounterStore = defineStore('counter', () => {
+  ...
+  return {
+    count,
+    doubleCount,
+    increment
+  }
+}, {
+  persist: true
+})
+```
+
+1. 其他配置，看官网文档即可
+
+   ​
+
+
+## 五、AI
+
+### 5.1 ChatGPT
+
+
+
+### 5.2 Copilot
+
