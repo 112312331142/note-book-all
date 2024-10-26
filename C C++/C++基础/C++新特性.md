@@ -215,7 +215,9 @@ move函数：
 
 智能指针没有从根本上解决C++内存安全问题，不加以注意依然会造成内存安全问题
 
-#### 8.2 unique_ptr
+#### 8.2 unique_ptr共享指针
+
+##### 8.2.1 基本使用
 
 * 在任何给定的时刻，只能有一个指针管理内存
 * 当指针超出作用域时，内存将自动释放
@@ -300,4 +302,26 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 ```
+
+##### 8.2.2 函数调用
+
+* unique_ptr不可copy，只可以move
+* Passing by value
+  1. 需要用std::move来转移内存拥有权
+  2. 如果参数直接传入std::make_unique语句，自动转移为move
+* Passing by reference
+  1. 如果设置参数为const则不能改变指向
+  2. reset()方法为只能指针清空方法
+* Return by value
+  1. 指向一个local object
+  2. 可以用作链式函数
+
+
+#### 8.3 shared_ptr独占指针
+
+* shared_ptr技术指针又称共享指针，与unique_ptr不同的是它是可以共享数据的
+* shared_ptr创建了一个计数器与类对象所指的内存相关联
+* copy则计数器加一，销毁则计数器减一，api为use_count()
+
+
 
