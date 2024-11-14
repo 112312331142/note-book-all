@@ -628,6 +628,48 @@ swiper插件的使用：
 
 注：多个swiper同时使用的时候，类名需要注意区分
 
+### 2.10 常见事件
+
+> 鼠标事件
+
+| 属性                                                         |                  描述                  |
+| :----------------------------------------------------------- | :------------------------------------: |
+| [onclick](https://www.runoob.com/jsref/event-onclick.html)   |  当用户点击某个对象时调用的事件句柄。  |
+| [oncontextmenu](https://www.runoob.com/jsref/event-oncontextmenu.html) | 在用户点击鼠标右键打开上下文菜单时触发 |
+| [ondblclick](https://www.runoob.com/jsref/event-ondblclick.html) |  当用户双击某个对象时调用的事件句柄。  |
+| [onmousedown](https://www.runoob.com/jsref/event-onmousedown.html) |            鼠标按钮被按下。            |
+| [onmouseenter](https://www.runoob.com/jsref/event-onmouseenter.html) |     当鼠标指针移动到元素上时触发。     |
+| [onmouseleave](https://www.runoob.com/jsref/event-onmouseleave.html) |        当鼠标指针移出元素时触发        |
+| [onmousemove](https://www.runoob.com/jsref/event-onmousemove.html) |              鼠标被移动。              |
+| [onmouseover](https://www.runoob.com/jsref/event-onmouseover.html) |          鼠标移到某元素之上。          |
+| [onmouseout](https://www.runoob.com/jsref/event-onmouseout.html) |           鼠标从某元素移开。           |
+| [onmouseup](https://www.runoob.com/jsref/event-onmouseup.html) |            鼠标按键被松开。            |
+
+> 键盘事件
+
+| 属性                                                         |            描述            |
+| :----------------------------------------------------------- | :------------------------: |
+| [onkeydown](https://www.runoob.com/jsref/event-onkeydown.html) |    某个键盘按键被按下。    |
+| [onkeypress](https://www.runoob.com/jsref/event-onkeypress.html) | 某个键盘按键被按下并松开。 |
+| [onkeyup](https://www.runoob.com/jsref/event-onkeyup.html)   |    某个键盘按键被松开。    |
+
+> 表单事件
+
+| 属性                                                         | 描述                                                         |
+| :----------------------------------------------------------- | :----------------------------------------------------------- |
+| [onblur](https://www.runoob.com/jsref/event-onblur.html)     | 元素失去焦点时触发                                           |
+| [onchange](https://www.runoob.com/jsref/event-onchange.html) | 该事件在表单元素的内容改变时触发( <input>, <keygen>, <select>, 和 <textarea>) |
+| [onfocus](https://www.runoob.com/jsref/event-onfocus.html)   | 元素获取焦点时触发                                           |
+| [onfocusin](https://www.runoob.com/jsref/event-onfocusin.html) | 元素即将获取焦点时触发                                       |
+| [onfocusout](https://www.runoob.com/jsref/event-onfocusout.html) | 元素即将失去焦点时触发                                       |
+| [oninput](https://www.runoob.com/jsref/event-oninput.html)   | 元素获取用户输入时触发                                       |
+| [onreset](https://www.runoob.com/jsref/event-onreset.html)   | 表单重置时触发                                               |
+| [onsearch](https://www.runoob.com/jsref/event-onsearch.html) | 用户向搜索域输入文本时触发 ( <input="search">)               |
+| [onselect](https://www.runoob.com/jsref/event-onselect.html) | 用户选取文本时触发 ( <input> 和 <textarea>)                  |
+| [onsubmit](https://www.runoob.com/jsref/event-onsubmit.html) | 表单提交时触发                                               |
+
+
+
 ## 三、日期对象和节点操作
 
 ### 3.1 日期对象
