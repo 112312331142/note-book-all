@@ -2,11 +2,9 @@
 
 作用：结合了Lambda表达式，简化集合、数组的操作
 
-### 1.1 使用步骤
+### 1.1 获取Stream流对象
 
-#### 1.1.2 获取Stream流对象
-
-先得到一条Stream利用（流水线），并把数据放上去
+先得到一条Stream利用（流水线），并把数据放上去，利用stream流中的API进行各种操作
 
 | 获取方式     | 方法名                                       | 说明                     |
 | ------------ | -------------------------------------------- | ------------------------ |
@@ -20,20 +18,20 @@
 - 方法的形参是一个可变参数，可以传递一堆零散的数值，也可以传递数组
 - 但是数组必须使是引用数据类型，如果传递基本数据类型，是会把整个数组当作一个元素，放到Stream流
 
-#### 1.1.2 使用中间方法处理数据
+### 1.2 使用中间方法处理数据
 
 使用中间方法对流水线上的数据进行各种操作
 
 Stream流的中间方法：
 
-| 名称                                               | 说明                                   |
-| -------------------------------------------------- | -------------------------------------- |
-| Stream<T> filiter (Predicate<? super T> predicate) | 过滤                                   |
-| Stream<T> limit(long maxSize)                      | 获取前几个元素                         |
-| Stream<T> skip(long n)                             | 跳过前几个元素                         |
-| Stream<T> distinct()                               | 元素去重，依赖（hashCode和equals方法） |
-| static<T> Stream<T> concat (Stream a,Stream b)     | 合并a和b两个流为一个流                 |
-| Stream<R> map(Function<T,R> mapper)                | 转换流中的数据类型                     |
+| 名称                                               | 说明                                        |
+| -------------------------------------------------- | ------------------------------------------- |
+| Stream<T> filiter (Predicate<? super T> predicate) | 过滤                                        |
+| Stream<T> limit(long maxSize)                      | 获取前几个元素                              |
+| Stream<T> skip(long n)                             | 跳过前几个元素：返回值为true表示数据liu'xia |
+| Stream<T> distinct()                               | 元素去重，依赖（hashCode和equals方法）      |
+| static<T> Stream<T> concat (Stream a,Stream b)     | 合并a和b两个流为一个流                      |
+| Stream<R> map(Function<T,R> mapper)                | 转换流中的数据类型                          |
 
 注：
 
@@ -42,10 +40,6 @@ Stream流的中间方法：
 * map方法演示：
 
 ```java
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.function.Function;
-
 public class demo {
     public static void main(String[] args) {
         ArrayList<String> list = new ArrayList<String>();
@@ -81,7 +75,7 @@ public class demo {
 //================================
 //31 13 11 22 31 313 12 100 
 ```
-#### 1.1.3 使用终结方法处理数据
+### 1.3 使用终结方法处理数据
 
 使用终结方法对流水线上的数据进行各种操作
 
@@ -150,7 +144,7 @@ public class demo {
     }
 }
 ```
-### 1.2 收集方法collect
+### 1.4 收集方法collect
 
 ```java
 import java.util.*;
@@ -228,6 +222,8 @@ public class demo {
     }
 }
 ```
+
+
 ## 二、方法引用
 
 ### 2.1方法引用概述
@@ -248,13 +244,7 @@ public class demo {
 格式：类名::静态方法
 
 ```java
-package function;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.function.Function;
-
-public class demo2 {
+public class demo {
     public static void main(String[] args) {
         ArrayList<String> list = new ArrayList<>();
         Collections.addAll(list,"1","2","3","4","5","6","7","8","9");
@@ -268,7 +258,6 @@ public class demo2 {
 
     }
 }
-
 
 //123456789
 //123456789
@@ -285,10 +274,6 @@ public class demo2 {
 ```java
 //打印出姓张且名字长度为3的人
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.function.Predicate;
-
 public class demo3 {
     public static void main(String[] args) {
         ArrayList<String> list = new ArrayList<>();
@@ -296,9 +281,6 @@ public class demo3 {
         Collections.addAll(list, "张无忌", "周芷若", "赵敏", "张强", "张三丰", "张翠山", "王二麻子", "谢广坤");
 
         list.stream().filter(s -> s.startsWith("张")).filter(s -> s.length() == 3).forEach(System.out::println);
-//张无忌
-//张三丰
-//张翠山
 
         list.stream().filter(new Predicate<String>() {
             @Override
@@ -306,17 +288,9 @@ public class demo3 {
                 return string.startsWith("张") && string.length() == 3;
             }
         }).forEach(System.out::println);
-//张无忌
-//张三丰
-//张翠山
-
 
         StringOperation stringOperation = new StringOperation();
         list.stream().filter(stringOperation::stringJudge).forEach(System.out::println);
-//张无忌
-//张三丰
-//张翠山
-
 
   		//list.stream().filter(this::stringJudge).forEach(System.out::println);
         //静态方法中没有this方法
@@ -434,13 +408,6 @@ public class demo {
         ArrayList<Integer> list = new ArrayList<Integer>();
         Collections.addAll(list, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
-//        Integer[] arr = list.stream().toArray(new IntFunction<Integer[]>() {
-//            @Override
-//            public Integer[] apply(int value) {
-//                return new Integer[value];
-//            }
-//        });
-
         Integer[] arr = list.stream().toArray(Integer[]::new);
         
         System.out.println(Arrays.toString(arr));
@@ -450,6 +417,9 @@ public class demo {
 
 //[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 ```
+
+
+
 ## 三、异常
 
 
@@ -628,6 +598,32 @@ public class NameFormatException extends RuntimeException{
 }
 ```
 
+### 3.5 不同JDK捕获异常的方式
+
+finally里面的异常一定会被执行
+
+```java
+public class FileCopy{
+	// try里面的流会自动关闭
+    public static void main(String[] args) {
+        try (FileInputStream fis = new FileInputStream("myFile/c1.png");
+             FileOutputStream fos = new FileOutputStream("myFile/c2.png")) {
+            byte[] bytes = new byte[1024];
+            int b;
+            while ((b = fis.read(bytes)) != -1) {
+                fos.write(bytes, 0, b);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+
+
+
+
+
 ## 四、FILE文件操作
 
 ### 4.1 FILE概述和构造方法
@@ -636,11 +632,11 @@ file对象就表示一个路径，可以是文件的路径、也可以是文件�
 
 构造方法：
 
-| 构造方法                                | 描述                                                         |
-| --------------------------------------- | ------------------------------------------------------------ |
-| public File(String pathname)            | 根据文件路径创建对象                                         |
-| public File(String parent,String child) | 根据父路径名字符串和子路径名字串创建文件对象                 |
-| public File(File parent,String child)   | 根据父路径对应文件对象和子路径名字符串创建文件对象根据父路径对应文件对象和子路径名字符串创建文件对象 |
+| 构造方法                                 | 描述                                                         |
+| ---------------------------------------- | ------------------------------------------------------------ |
+| public File(String pathname)             | 根据文件路径创建对象                                         |
+| public File(String parent, String child) | 根据父路径名字符串和子路径名字串创建文件对象                 |
+| public File(File parent, String child)   | 根据父路径对应文件对象和子路径名字符串创建文件对象根据父路径对应文件对象和子路径名字符串创建文件对象 |
 
 ### 4.2 File常见成员方法
 
@@ -684,11 +680,20 @@ delete方法默认只能删除文件和空文件夹，delete方法直接删除�
 
 
 
+
 ## 五、IO流
 
 ### 5.1 IO流概述
 
 IO流：用于读写文件中的数据（可以读写文件，或网络中的数据...）
+
+输入input：读取外部数据（磁盘、光盘等外部设备的数据等）到程序（内存）中
+
+输出流output：将程序（内存）数据输出到磁盘、光盘等存储设备中
+
+字节流：按字节操作，能实现无损操作
+
+字符流：操作文本文件
 
 **IO流的分类**：
 
@@ -781,13 +786,22 @@ IO流*-->字符流-操作纯文本类型的文件
 操作本地文字的字节输入流，可以把本地文件中的数据写到程序中
 
 ```java
-FileInputStream isr = new FileInputStream("src\\io\\byteStream\\a.txt");
+public class FileStream {
+    public static void main(String[] args) throws IOException {
+        FileOutputStream fos = new FileOutputStream("myFile/p.python",true);
+        String text = "gaoxin is good\n";
+        fos.write(text.getBytes());
 
-int read = isr.read();
-System.out.println((char)read);
-
-
-isr.close();
+        FileInputStream fis = new FileInputStream("myFile/p.python");
+        byte[] bytes = new byte[1024];
+        int b;
+        while ((b = fis.read(bytes)) != -1) {
+            System.out.println(new String(bytes, 0, b));
+        }
+        fos.close();
+        fis.close();
+    }
+}
 ```
 
 1. 创建字节输入流对象
@@ -809,18 +823,14 @@ isr.close();
 
 FileInputStream一次读多个字节：
 
-| 方法名称                       | 说明                   |
-| ------------------------------ | ---------------------- |
-| public int read()              | 一次写一个字节数据     |
-| public int read(byte[] buffer) | 一次写一个字节数组数据 |
+| 方法名称                       | 说明                                               |
+| ------------------------------ | -------------------------------------------------- |
+| public int read()              | 一次写一个字节数据，此时返回的数据                 |
+| public int read(byte[] buffer) | 一次写一个字节数组数据，返回的是读取到了多少个数据 |
 
 ### 5.3 文件拷贝
 
 ```java
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 public class demo {
     public static void main(String[] args) throws IOException {
         //将chess.mp4拷贝到指定模块上
@@ -916,7 +926,7 @@ Java中解码的方法
 
 ### 5.5 字符流
 
-字符流：字符流的底层其实就是字节流
+字符流：字符流的底层其实就是字节流，字符流 = 字节流 + 字符集
 
 特点：
 
@@ -970,13 +980,18 @@ Java中解码的方法
 
    * 每次使用完流之后都要释放资源
 
+| 方法    | 描述                             |
+| ------- | -------------------------------- |
+| flush() | 将缓冲区的数据，刷新到本地文件中 |
+| close() | 释放资源/关流                    |
+
+IO流随用随创建，随用随关闭
+
 ### 5.6 综合练习
 
 #### 5.6.1 拷贝文件夹
 
 ```java
-import java.io.*;
-
 public class demo1 {
     public static void main(String[] args) throws IOException {
         File src=new File("D:\\aaa");
@@ -1013,16 +1028,8 @@ public class demo1 {
 #### 5.6.2 加密文件
 
 ```java
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 public class demo2 {
     public static void main(String[] args) throws IOException {
-//        //创建对象关联原始文件
-//        FileInputStream fis=new FileInputStream("girl1.jpg");
-//        //创建对象关联加密文件
-//        FileOutputStream fos=new FileOutputStream("ency.jpg");
 
         //解密文件
         FileInputStream fis=new FileInputStream("ency.jpg");
@@ -1044,12 +1051,6 @@ public class demo2 {
 方法1：
 
 ```java
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-
 public class demo {
     public static void main(String[] args) throws IOException {
         FileReader fr = new FileReader("a.txt");
@@ -1096,11 +1097,6 @@ public class demo {
 方法2：
 
 ```java
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Arrays;
-
 public class demo {
     public static void main(String[] args) throws IOException {
         FileReader fr = new FileReader("a.txt");
@@ -1190,32 +1186,64 @@ public class demo {
 * 字符转换输出流：OutputStreamWriter
 
 ```java
-import java.io.*;
+public class ConvertStream {
 
-public class demo4 {
     public static void main(String[] args) throws IOException {
-//        FileInputStream fis = new FileInputStream("c.txt");
-//        InputStreamReader isr = new InputStreamReader(fis);
-//        BufferedReader br = new BufferedReader(isr);
-//
-//        String str=br.readLine();
-//        System.out.println(str);
-//
-//        br.close();
+        InputStreamReader isr = new InputStreamReader(
+                new FileInputStream("my-file/test.txt"), "GBK");
+        OutputStreamWriter osw = new OutputStreamWriter(
+                new FileOutputStream("my-file/t.txt"), StandardCharsets.UTF_8);
 
-        BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream("e.txt")));
-        
-        String line;
-        while((line=br.readLine())!=null){
-            System.out.println(line);
+        int b = 0;
+        while ((b = isr.read()) != -1) {
+            System.out.print((char) b);
+            osw.write(b);
         }
-        br.close();
+        osw.close();
+        isr.close();
 
+
+        isr.close();
+    }
+}
+
+```
+
+```java
+public class ConvertStream {
+
+    public static void main(String[] args) throws IOException {
+        FileReader fr = new FileReader("my-file/test.txt", Charset.forName("GBK"));
+        FileWriter fw = new FileWriter("my-file/t.txt", StandardCharsets.UTF_8);
+
+        int b = 0;
+        while ((b = fr.read()) != -1) {
+            fw.write(b);
+        }
+
+        fw.close();
+        fr.close();
+    }
+}
+
+```
+
+```java
+public class Test7 {
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(
+                new FileInputStream("my-file/test.txt"), Charset.forName("GBK")));
+        String line = br.readLine();
+        System.out.println(line);
+
+
+        br.close();
     }
 }
 ```
 
-### 5.9 序列化流
+### 5.9 序列化流/对象操作输出流
 
 #### 5.9.1序列化流/对象操作输出流
 
@@ -1225,11 +1253,7 @@ public class demo4 {
 
 解决方案：需要让Javabean类实现Serializable接口
 
-```
-* Serializable接口里面没有抽象方法，标记型接口
-* 一旦实现了这个接口，那么就表示当前的Student类可以被序列化
-* 可以理解一个物品的合格证
-```
+Serializable接口里面没有抽象方法，标记型接口，一旦实现了这个接口，那么就表示当前的Student类可以被序列化，可以理解一个物品的合格证
 
 | 构造方法                                     | 说明                 |
 | -------------------------------------------- | -------------------- |
@@ -1238,27 +1262,6 @@ public class demo4 {
 | 成员方法                                  | 说明                       |
 | ----------------------------------------- | -------------------------- |
 | public final void writeObject(object obj) | 把对象序列化写出到文件中去 |
-
-```java
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-
-public class demo1 {
-    public static void main(String[] args) throws IOException {
-        //1.创建对象
-        Student stu=new Student("zhangsan",12);
-
-        //2.创建序列化对象
-        ObjectOutputStream oos=new ObjectOutputStream(new FileOutputStream("f.txt"));
-
-        //3.写出数据
-        oos.writeObject(stu);
-
-        oos.close();
-    }
-}
-```
 
 #### 5.9.2 反序列化流
 
@@ -1274,9 +1277,63 @@ public class demo1 {
 
 #### 5.9.3 序列化流/反序列化流细节汇总
 
+```java
+package review.io.iostream;
+
+import java.io.*;
+
+//@SuppressWarnings("all")
+public class ObjectStream {
+
+    /**
+     * 一旦实现了Serializable接口，该类可被序列化
+     * 序列化流读到文件中的数据是不能被修改的，一旦修改就无再次读回来
+     */
+    static class Student implements Serializable {
+
+        @Serial
+        private static final long serialVersionUID = 0xd61d12646915340aL;
+
+        String name;
+        int age;
+        // 瞬态关键字，不会把当前的属性序列化到本地文件中
+        private transient String address;
+
+        public Student(String name, int age) {
+            this.name = name;
+            this.age = age;
+        }
+
+        @Override
+        public String toString() {
+            return "Student{" +
+                    "name='" + name + '\'' +
+                    ", age=" + age +
+                    '}';
+        }
+    }
+
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+        Student s1 = new Student("高息", 12);
+
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("my-file/test.txt"));
+        oos.writeObject(s1);
+
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("my-file/test.txt"));
+        System.out.println(ois.readObject());
+
+        oos.close();
+        ois.close();
+    }
+}
+
+```
+
+
+
 * 使用序列化流将对象写到文件时，需要让javabean类实现Serializable接口，否则会出现NotSerializableException异常
 
-* 序列化流写到文件中的数据是不能修改的，一旦修改就无法在次都回来了
+* 序列化流写到文件中的数据是不能修改的，一旦修改就无法再次都回来了
 
 * 序列化对象后，修改了Javabean类，再次反序列化，会抛出InvalidClassException异常
 
@@ -1291,56 +1348,55 @@ public class demo1 {
 将多个自定义对象序列化到文件中，但是由于对象的个数不确定，反序列流如何操作
 
 ```java
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+package review.io.test;
+
+import review.io.iostream.ObjectStream;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 
-public class demo1 {
-    public static void main(String[] args) throws IOException {
-        //1.序列化多个对象
-        Student s1=new Student("zhangsan",23,"male");
-        Student s2=new Student("lisi",23,"male");
-        Student s3=new Student("wangwu",25,"male");
+/**
+ * Test8类演示了如何使用ObjectOutputStream和ObjectInputStream来序列化和反序列化对象
+ * 该类主要功能是序列化学生对象列表到文件，并从文件中反序列化这些对象
+ */
+@SuppressWarnings("all")
+public class Test8 {
 
-        //2.创建集合
-        ArrayList<Student> list=new ArrayList<>();
-        list.add(s1);
-        list.add(s2);
-        list.add(s3);
+    /**
+     * 主函数执行序列化和反序列化操作
+     * @param args 命令行参数
+     * @throws IOException 当文件操作失败时抛出
+     * @throws ClassNotFoundException 当反序列化过程中找不到类时抛出
+     */
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+        // 创建学生对象
+        ObjectStream.Student tom = new ObjectStream.Student("Tom", 12);
+        ObjectStream.Student jack = new ObjectStream.Student("Jack", 12);
+        ObjectStream.Student john = new ObjectStream.Student("John", 12);
 
-        //3.读取对象
-        ObjectOutputStream oos=new ObjectOutputStream(new FileOutputStream("g.txt"));
-        oos.writeObject(list);
+        // 创建学生列表并添加学生对象
+        ArrayList<ObjectStream.Student> students = new ArrayList<>();
+        Collections.addAll(students, tom, jack, john);
 
+        // 创建ObjectOutputStream用于将学生列表序列化到文件
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("my-file/test.txt"));
+        oos.writeObject(students);
         oos.close();
 
-    }
-}
-```
+        // 创建ObjectInputStream用于从文件中反序列化学生列表
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("my-file/test.txt"));
+        ArrayList<ObjectStream.Student> list = (ArrayList<ObjectStream.Student>) ois.readObject();
 
-```java
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-
-public class demo2 {
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
-        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("g.txt"));
-
-        ArrayList<Student> list = (ArrayList<Student>) ois.readObject();
-
-        for (Student student : list) {
+        // 遍历反序列化后的学生列表并打印每个学生信息
+        for (ObjectStream.Student student : list) {
             System.out.println(student);
         }
-
         ois.close();
-
     }
 }
 ```
+
+
 
 ### 5.10 打印流
 
@@ -1348,7 +1404,7 @@ public class demo2 {
 
 特点：
 
-1. 打印流只能操作文件目的地，不操作数据源
+1. 打印流只能操作文件目的地，不操作数据源，打印流不能读只能写出
 
 2. 特有的写出方法可以实现，数据原样写出
 
@@ -1398,15 +1454,16 @@ public class demo2 {
 | public void print(Xxx xx)                        | 打印任意数据，不换行             |
 | public void printf(String format,Object... args) | 带有占用符的打印数据，不换行     |
 
+打印流的输出语句的关系
+
 ```java
 import java.io.PrintStream;
 
-public class demo {
+public class Demo {
     public static void main(String[] args) {
         System.out.println("123");
 
         //获取打印流的对象，此打印流在虚拟机开启的时候，有虚拟机创建时，默认指向控制台
-
         //特殊的打印流，系统中的标准输出流，是不能关闭的，在系统中是唯一的
         PrintStream ps= System.out;
 
@@ -1426,13 +1483,6 @@ public class demo {
 #### 5.11.1 解压缩流
 
 ```java
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
 public class demo1 {
     public static void main(String[] args) throws IOException {
         File src = new File("D:\\aaa.zip");
@@ -1480,13 +1530,6 @@ public class demo1 {
 将a.txt打包成一个压缩包：
 
 ```java
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
 public class demo2 {
     public static void main(String[] args) throws IOException {
         File src=new File("D:\\a.txt");
@@ -1521,59 +1564,70 @@ public class demo2 {
 将aaa文件夹打包成一个压缩包：
 
 ```java
+package review.io.iostream;
+
 import java.io.*;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class demo {
+/**
+ * ZipStreamPackDir类用于将指定目录下的所有文件和子目录压缩成一个ZIP文件
+ */
+public class ZipStreamPackDir {
+
+    /**
+     * 程序的入口点
+     * @param args 命令行参数，未使用
+     * @throws IOException 如果文件读写操作失败
+     */
     public static void main(String[] args) throws IOException {
-        //1.创建File对象表示要压缩的文件夹
-        File src=new File("D:\\cod\\aaa");
-        //2.创建FIle对象表示压缩包放在哪里（压缩包的父级路径）
-        File destParent=src.getParentFile();
-        //3.创建File对象表示压缩包的路径
-        File dest = new File(destParent, src.getName()+".zip");
-        //4.创建压缩流关联压缩包
-        ZipOutputStream zos=new ZipOutputStream(new FileOutputStream(dest));
-        //5.获取src里面的每一个文件，变成ZipEntry对象，放入到压缩包中
-        toZip(src,zos,src.getName());
-        //6.释放资源
+        // 源目录的路径
+        File src = new File("my-file/dd/qq-mutation-app");
+        // 目标ZIP文件的路径，基于源目录生成
+        File dest = new File(src + ".zip");
+
+        // 创建ZipOutputStream对象，用于将压缩数据写入目标ZIP文件
+        ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(dest));
+        
+        // 调用beZipEntry方法开始压缩源目录下的文件和子目录
+        beZipEntry(src, zos, src.getName());
+
+        // 关闭ZipOutputStream，释放与之关联的资源
         zos.close();
     }
 
-    /*
-    * 作用：获取src里面的每一个文件，变成ZipEntry对象，放入到压缩包当中
-    * 参数一：数据源
-    * 参数二：压缩流
-    * 参数三：压缩包内部的路径
+    /**
+     * 递归地将指定目录下的所有文件和子目录压缩到ZIP输出流中
+     * @param src 要压缩的源文件或目录
+     * @param zos ZipOutputStream对象，用于将压缩数据写入ZIP文件
+     * @param name 当前处理的文件或目录的名称，用于构建ZIP条目的路径
+     * @throws IOException 如果文件读写操作失败
      */
-
-    public static void toZip(File src, ZipOutputStream zos,String name) throws IOException {
-        //1.进入src文件夹
-        File[] files=src.listFiles();
-        //2.遍历数组
-        for (File file : files) {
-            if(file.isFile()){
-                //3.判断-文件，变成ZipEntry对象，放入到压缩包当中
-                ZipEntry entry=new ZipEntry(name+"\\"+file.getName());//  aaa\\xx.txt
-                zos.putNextEntry(entry);
-                //读取文件中的数据，放入压缩包中
-                FileInputStream fis=new FileInputStream(file);
-                int b;
-                while((b=fis.read())!=-1){
-                    zos.write(b);
+    private static void beZipEntry(File src, ZipOutputStream zos, String name) throws IOException {
+        // 遍历源目录下的所有文件和子目录
+        for (File file : Objects.requireNonNull(src.listFiles())) {
+            // 如果当前文件是一个普通文件，则将其压缩到ZIP输出流中
+            if (file.isFile()) {
+                // 创建ZIP条目，并写入ZIP输出流
+                zos.putNextEntry(new ZipEntry(name + "\\" + file.getName()));
+                // 读取文件内容，并写入ZIP输出流
+                FileInputStream fis = new FileInputStream(file);
+                byte[] bytes = new byte[1024];
+                int len;
+                while ((len = fis.read(bytes)) != -1) {
+                    zos.write(bytes, 0, len);
                 }
+                // 关闭文件输入流，释放与之关联的资源
                 fis.close();
-                zos.closeEntry();
-
-            }else{
-                //4.判断-文件夹，递归
-                toZip(file,zos,name+"\\"+file.getName());
-
+            } else if (file.isDirectory()) {
+                // 如果当前文件是一个目录，则递归地压缩其下的文件和子目录
+                beZipEntry(file, zos, name + "\\" + file.getName());
             }
         }
     }
 }
+
 ```
 
 ### 5.12 常用工具包
@@ -1621,4 +1675,532 @@ FileUtil类中常用方法：
 | readlines     | 指定字符编码，把文件中的数据，读到集合中    |
 | readUtf8Lines | 按照Utf-8的形式，把文件中的数据，读到集合中 |
 | copy          | 拷贝文件或文件夹                            |
+
+```
+
+```
+
+
+
+## 六、小项目
+
+### 6.1 网络爬虫
+
+```java
+package review.io.project;
+
+import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
+
+/**
+ * Project1类用于演示网络爬虫抓取姓名数据并进行处理
+ */
+public class Project1 {
+    /**
+     * 主函数执行姓名数据的抓取和处理
+     * @param args 命令行参数
+     * @throws IOException 当网络抓取过程中发生I/O错误
+     */
+    public static void main(String[] args) throws IOException {
+        // 定义抓取姓名数据的URL
+        String familyNameNet =
+                "https://hanyu.baidu.com/shici/detail?pid=0b2f26d4c0ddb3ee693fdb1137ee1b0d";
+        String boyNameNet = "http://www.haoming8.cn/baobao/10881.html";
+        String girlNameNet = "http://www.haoming8.cn/baobao/7641.html";
+
+        // 使用webCrawler函数抓取网页数据
+        String familyNameStr = webCrawler(familyNameNet);
+        String boyNameStr = webCrawler(boyNameNet);
+        String girlNameStr = webCrawler(girlNameNet);
+
+        // 使用正则表达式提取姓名数据
+        ArrayList<String> familyNameTempList = getDate(familyNameStr,
+                "([^\\w]{4})(，|。)", 1);
+        ArrayList<String> boyNameTempList = getDate(boyNameStr,
+                "([\\u4e00-\\u9fa5]{2})(、|。|,|，|。)", 1);
+        ArrayList<String> girlNameTempList = getDate(girlNameStr,
+                "(.. ){4}..", 0);
+
+        // 处理家族姓名数据
+        ArrayList<String> familyNameList = new ArrayList<>();
+        for (String s : familyNameTempList) {
+            for (int i = 0; i < s.length(); i++) {
+                familyNameList.add(String.valueOf(s.charAt(i)));
+            }
+        }
+        familyNameList = new ArrayList<>(familyNameList.stream().limit(
+                familyNameList.size() - 4).toList());
+
+        // 处理男孩姓名数据
+        List<String> boyNameList = boyNameTempList.stream().limit(
+                boyNameTempList.size() - 38).skip(17).toList();
+
+        // 处理女孩姓名数据
+        ArrayList<String> girlNameList = new ArrayList<>();
+        for (String s : girlNameTempList) {
+            String[] split = s.split(" ");
+            girlNameList.addAll(Arrays.asList(split));
+        }
+
+        // 获取处理后的姓名信息
+        ArrayList<String> infos = new ArrayList<>(getInfos(familyNameList, new ArrayList<>(boyNameList),
+                girlNameList, 70, 50));
+        Collections.shuffle(infos);
+        BufferedWriter br = new BufferedWriter(new FileWriter("my-file/name.txt"));
+        for (String info : infos) {
+            br.write(info);
+            br.newLine();
+        }
+        br.close();
+    }
+
+    /**
+     * 生成指定数量的男孩和女孩的信息列表
+     * 该方法通过合并男孩和女孩的名字列表（根据给定的数量）来生成一个综合信息列表
+     *
+     * @param familyNameList 家庭名字列表，用于组合名字
+     * @param boyNameList 男孩名字列表，从中选择名字进行组合
+     * @param girlNameList 女孩名字列表，从中选择名字进行组合
+     * @param boyNum 需要生成的男孩名字的数量
+     * @param girlNum 需要生成的女孩名字的数量
+     * @return 返回一个包含男孩和女孩信息的列表
+     */
+    private static List<String> getInfos(ArrayList<String> familyNameList
+            , ArrayList<String> boyNameList, ArrayList<String> girlNameList
+            , int boyNum, int girlNum) {
+        // 使用Stream API合并男孩和女孩的名字列表，并转换为List
+        return Stream.concat(getName(familyNameList, boyNameList, boyNum, 1).stream()
+                , getName(familyNameList, girlNameList, girlNum, 2).stream()).toList();
+    }
+
+    /**
+     * 生成姓名列表
+     * @param familyNameList 家族姓名列表
+     * @param nameList 姓名列表
+     * @param num 姓名数量
+     * @param sex 性别标识，1为男，其他为女
+     * @return 生成的姓名列表
+     */
+    private static List<String> getName(ArrayList<String> familyNameList, ArrayList<String> nameList,
+                                        int num, int sex) {
+        // 使用HashSet来存储姓名，以确保姓名的唯一性
+        HashSet<String> Name = new HashSet<>();
+        // 当集合中的姓名数量未达到所需数量时，继续生成姓名
+        while (Name.size() != num) {
+            // 打乱姓氏列表和名字列表的顺序，以获得随机性
+            Collections.shuffle(familyNameList);
+            Collections.shuffle(nameList);
+            // 从打乱后的列表中取第一个元素组合成姓名，并添加到集合中
+            Name.add(familyNameList.get(0) + nameList.get(0));
+        }
+        // 将集合转换为流，映射每个姓名到包含性别和随机年龄的信息，然后收集为List
+        return Name.stream().map(s -> s + "-" + (sex == 1 ? "男" : "女") + "-" +
+                new Random().nextInt(15, 30)).toList();
+    }
+
+    /**
+     * 从给定字符串中提取日期
+     * 该方法使用正则表达式来查找字符串中所有符合指定模式的日期，并将它们添加到一个列表中返回
+     *
+     * @param str 包含日期的字符串
+     * @param regex 用于匹配日期的正则表达式
+     * @param index 匹配结果中日期的组索引
+     * @return 包含所有匹配日期的列表
+     */
+    private static ArrayList<String> getDate(String str, String regex, int index) {
+        // 初始化一个空的字符串列表，用于存储匹配到的日期
+        ArrayList<String> list = new ArrayList<>();
+        // 编译正则表达式
+        Pattern pattern = Pattern.compile(regex);
+        // 创建一个匹配器，用于在给定字符串上执行匹配操作
+        Matcher matcher = pattern.matcher(str);
+        // 遍历字符串，查找所有匹配的日期
+        while (matcher.find()) {
+            // 将匹配到的日期添加到列表中
+            list.add(matcher.group(index));
+        }
+        // 返回包含所有匹配日期的列表
+        return list;
+    }
+
+    /**
+     * 网页爬虫函数，用于从指定的URL中提取内容
+     *
+     * @param net 字符串类型的URL地址，表示要爬取的网页地址
+     * @return 返回爬取到的网页内容字符串
+     * @throws IOException 如果在打开URL连接或读取内容时发生I/O错误
+     */
+    public static String webCrawler(String net) throws IOException {
+        // 创建StringBuilder对象，用于存储网页内容
+        StringBuilder sb = new StringBuilder();
+        // 创建URL对象，使用传入的字符串参数初始化
+        URL url = new URL(net);
+        // 打开URL连接
+        URLConnection conn = url.openConnection();
+        // 使用BufferedReader读取URL连接的内容
+        BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        int len;
+        // 定义字符数组，用于存储从网页读取的内容
+        char[] chars = new char[1024];
+        // 循环读取网页内容，直到结束
+        while ((len = br.read(chars)) != -1) {
+            // 将读取的内容追加到StringBuilder中
+            sb.append(new String(chars, 0, len));
+        }
+        // 关闭BufferedReader
+        br.close();
+        // 返回爬取到的网页内容字符串
+        return sb.toString();
+    }
+}
+
+```
+
+### 6.2 用Hutools写假数据
+
+```java
+package review.io.project;
+
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.ReUtil;
+import cn.hutool.http.HttpUtil;
+
+import java.util.*;
+import java.util.stream.Stream;
+
+public class Project2 {
+
+    public static void main(String[] args) {
+        // 定义抓取姓名数据的URL
+        String familyNameNet =
+                "https://hanyu.baidu.com/shici/detail?pid=0b2f26d4c0ddb3ee693fdb1137ee1b0d";
+        String boyNameNet = "http://www.haoming8.cn/baobao/10881.html";
+        String girlNameNet = "http://www.haoming8.cn/baobao/7641.html";
+
+        String familyNameStr = HttpUtil.get(familyNameNet);
+        String boyNameStr = HttpUtil.get(boyNameNet);
+        String girlNameStr = HttpUtil.get(girlNameNet);
+
+        List<String> familyNameTempList = ReUtil.findAll(
+                "([^\\w]{4})(，|。)", familyNameStr, 1);
+        List<String> boyNameTempList = ReUtil.findAll(
+                "([\\u4e00-\\u9fa5]{2})(、|。|,|，|。)", boyNameStr, 1);
+        List<String> girlNameTempList = ReUtil.findAll("(.. ){4}..", girlNameStr, 0);
+
+        // 处理家族姓名数据
+        ArrayList<String> familyNameList = new ArrayList<>();
+        for (String s : familyNameTempList) {
+            for (int i = 0; i < s.length(); i++) {
+                familyNameList.add(String.valueOf(s.charAt(i)));
+            }
+        }
+        familyNameList = new ArrayList<>(familyNameList.stream().limit(
+                familyNameList.size() - 4).toList());
+
+        // 处理男孩姓名数据
+        List<String> boyNameList = boyNameTempList.stream().limit(
+                boyNameTempList.size() - 38).skip(17).toList();
+
+        // 处理女孩姓名数据
+        ArrayList<String> girlNameList = new ArrayList<>();
+        for (String s : girlNameTempList) {
+            String[] split = s.split(" ");
+            girlNameList.addAll(Arrays.asList(split));
+        }
+
+        // 获取处理后的姓名信息
+        ArrayList<String> infos = new ArrayList<>(getInfos(familyNameList, new ArrayList<>(boyNameList),
+                girlNameList, 70, 50));
+        FileUtil.writeLines(infos, "my-file/name.txt","UTF-8");
+    }
+
+    /**
+     * 生成指定数量的男孩和女孩的信息列表
+     * 该方法通过合并男孩和女孩的名字列表（根据给定的数量）来生成一个综合信息列表
+     *
+     * @param familyNameList 家庭名字列表，用于组合名字
+     * @param boyNameList 男孩名字列表，从中选择名字进行组合
+     * @param girlNameList 女孩名字列表，从中选择名字进行组合
+     * @param boyNum 需要生成的男孩名字的数量
+     * @param girlNum 需要生成的女孩名字的数量
+     * @return 返回一个包含男孩和女孩信息的列表
+     */
+    private static List<String> getInfos(ArrayList<String> familyNameList
+            , ArrayList<String> boyNameList, ArrayList<String> girlNameList
+            , int boyNum, int girlNum) {
+        // 使用Stream API合并男孩和女孩的名字列表，并转换为List
+        return Stream.concat(getName(familyNameList, boyNameList, boyNum, 1).stream()
+                , getName(familyNameList, girlNameList, girlNum, 2).stream()).toList();
+    }
+
+    /**
+     * 生成姓名列表
+     * @param familyNameList 家族姓名列表
+     * @param nameList 姓名列表
+     * @param num 姓名数量
+     * @param sex 性别标识，1为男，其他为女
+     * @return 生成的姓名列表
+     */
+    private static List<String> getName(ArrayList<String> familyNameList, ArrayList<String> nameList,
+                                        int num, int sex) {
+        // 使用HashSet来存储姓名，以确保姓名的唯一性
+        HashSet<String> Name = new HashSet<>();
+        // 当集合中的姓名数量未达到所需数量时，继续生成姓名
+        while (Name.size() != num) {
+            // 打乱姓氏列表和名字列表的顺序，以获得随机性
+            Collections.shuffle(familyNameList);
+            Collections.shuffle(nameList);
+            // 从打乱后的列表中取第一个元素组合成姓名，并添加到集合中
+            Name.add(familyNameList.get(0) + nameList.get(0));
+        }
+        // 将集合转换为流，映射每个姓名到包含性别和随机年龄的信息，然后收集为List
+        return Name.stream().map(s -> s + "-" + (sex == 1 ? "男" : "女") + "-" +
+                new Random().nextInt(15, 30)).toList();
+    }
+}
+```
+
+### 6.3 随机点名器
+
+```java
+package review.io.project;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
+
+/**
+ * Project3类用于执行学生信息的读取、处理和写入操作
+ * 该程序从文件中读取学生信息，根据学生的体重进行随机抽选，并更新抽中学生的体重，
+ * 最后将更新后的学生信息写回文件
+ */
+public class Project3 {
+
+    /**
+     * Student类用于表示学生的基本信息
+     */
+    static class Student {
+        private String name;
+        private String gender;
+        private int age;
+        private double weight;
+
+        /**
+         * 默认构造函数
+         */
+        public Student() {
+        }
+
+        /**
+         * 构造函数，用于创建并初始化学生对象
+         *
+         * @param name     学生姓名
+         * @param gender   学生性别
+         * @param age      学生年龄
+         * @param weight   学生体重
+         */
+        public Student(String name, String gender, int age, double weight) {
+            this.name = name;
+            this.gender = gender;
+            this.age = age;
+            this.weight = weight;
+        }
+
+        // 以下为getter和setter方法，用于获取和设置学生属性
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getGender() {
+            return gender;
+        }
+
+        public void setGender(String gender) {
+            this.gender = gender;
+        }
+
+        public int getAge() {
+            return age;
+        }
+
+        public void setAge(int age) {
+            this.age = age;
+        }
+
+        public double getWeight() {
+            return weight;
+        }
+
+        public void setWeight(double weight) {
+            this.weight = weight;
+        }
+
+        /**
+         * 重写toString方法，用于以字符串形式输出学生信息
+         *
+         * @return 学生信息的字符串表示
+         */
+        @Override
+        public String toString() {
+            return "Student{" +
+                    "name='" + name + '\'' +
+                    ", gender='" + gender + '\'' +
+                    ", age=" + age +
+                    ", weight=" + weight +
+                    '}';
+        }
+    }
+
+    /**
+     * 主函数执行学生信息的读取、处理和写入操作
+     *
+     * @param args 命令行参数
+     * @throws IOException 当文件读写操作发生错误时抛出
+     */
+    public static void main(String[] args) throws IOException {
+        ArrayList<Student> list = new ArrayList<>();
+        // 从文件中读取学生信息并创建学生对象
+        BufferedReader br = new BufferedReader(new FileReader("my-file/name.txt"));
+        String line;
+        while ((line = br.readLine()) != null && !line.isEmpty()) {
+            String[] split = line.split("-");
+            Student student = new Student(split[0], split[1], Integer.parseInt(split[2]),
+                    Double.parseDouble(split[3]));
+            list.add(student);
+        }
+        br.close();
+
+        // 计算所有学生的总体重
+        double weight = 0;
+        for (Student stu : list) {
+            weight += stu.getWeight();
+        }
+        // 根据学生的体重计算每个学生的抽中概率范围
+        double[] range = new double[list.size() + 1];
+        for (int i = 0; i < list.size(); i++) {
+            range[i + 1] = range[i] + list.get(i).getWeight() / weight;
+        }
+        // 随机生成一个数字，根据该数字抽中一个学生
+        double rand = new Random().nextDouble(1);
+        int targetIndex = -Arrays.binarySearch(range, rand) - 2;
+        Student stu = list.get(targetIndex);
+        System.out.println(stu.getName());
+        // 将抽中学生的体重减半
+        stu.setWeight(stu.getWeight() / 2);
+
+        // 将更新后的学生信息写回文件
+        BufferedWriter bw = new BufferedWriter(new FileWriter("my-file/name.txt"));
+        for (Student student : list) {
+            String stuStr = student.getName() + "-" + student.getGender() + "-" +
+                    student.getAge() + "-" + student.getWeight();
+            bw.write(stuStr);
+            bw.newLine();
+        }
+        bw.close();
+    }
+}
+```
+
+### 6.4 登录注册
+
+```java
+package review.io.project;
+
+import java.io.*;
+import java.util.Scanner;
+
+public class Project4 {
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader("my-file/userinfo.txt"));
+        Scanner sc = new Scanner(System.in);
+
+        String data = br.readLine();
+        String[] userArr = data.split("&");
+        int count = Integer.parseInt(userArr[2].split("=")[1]);
+        while (count-- > 0) {
+            System.out.println("please input your username");
+            String name = sc.nextLine();
+            if(!userArr[0].split("=")[1].equals(name)) {
+                System.out.println("username error, you have " + count + " chances");
+                continue;
+            }
+            System.out.println("please input you password");
+            String password = sc.nextLine();
+            if(!userArr[1].split("=")[1].equals(password)) {
+                System.out.println("password error, you have " + count + " chances");
+                continue;
+            } else{
+                System.out.println("successful login");
+                break;
+            }
+        }
+        StringBuilder returnStr = new StringBuilder(data);
+        if (count == -1) {
+            System.out.println("you chances already was exhausted, please connect managers " +
+                    "modify the password!");
+            BufferedWriter bw = new BufferedWriter(new FileWriter("my-file/userinfo.txt"));
+            StringBuilder replace = returnStr.replace(returnStr.length() - 1
+                    , returnStr.length(), String.valueOf(0));
+            bw.write(replace.toString());
+            bw.close();
+        }
+
+        br.close();
+    }
+}
+
+```
+
+### 6.5 Properties
+
+properties是一个双列集合，拥有Map集合所有的特点
+
+重点：有一些特有的方法，可以把集合中的数据，按照键值对的形式写到配置文件中，也可以把配置文件中的数据读取到集合中来
+
+```java 
+public class PropertiesExample {
+    public static void main(String[] args) {
+        Properties prop = new Properties();
+
+        // 加载属性文件
+        try (FileInputStream fis = new FileInputStream("src/config.properties")) {
+            prop.load(fis);
+
+            // 读取属性
+            String dbUrl = prop.getProperty("url");
+            String dbUser = prop.getProperty("username");
+            String dbPassword = prop.getProperty("password");
+
+            System.out.println("Database URL: " + dbUrl);
+            System.out.println("Database User: " + dbUser);
+            System.out.println("Database Password: " + dbPassword);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // 修改或添加属性
+        prop.setProperty("url", "jdbc:mysql://localhost:3306/test");
+
+        // 保存属性文件
+        try (FileOutputStream fos = new FileOutputStream("src/config.properties")) {
+            prop.store(fos, "Updated properties");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+
+```
 

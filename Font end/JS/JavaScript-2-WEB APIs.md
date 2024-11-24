@@ -658,7 +658,7 @@ swiper插件的使用：
 | 属性                                                         | 描述                                                         |
 | :----------------------------------------------------------- | :----------------------------------------------------------- |
 | [onblur](https://www.runoob.com/jsref/event-onblur.html)     | 元素失去焦点时触发                                           |
-| [onchange](https://www.runoob.com/jsref/event-onchange.html) | 该事件在表单元素的内容改变时触发( <input>, <keygen>, <select>, 和 <textarea>) |
+| [onchange](https://www.runoob.com/jsref/event-onchange.html) | 该事件在表单元素的内容且失去焦点时改变时触发( <input>, <keygen>, <select>, 和 <textarea>) |
 | [onfocus](https://www.runoob.com/jsref/event-onfocus.html)   | 元素获取焦点时触发                                           |
 | [onfocusin](https://www.runoob.com/jsref/event-onfocusin.html) | 元素即将获取焦点时触发                                       |
 | [onfocusout](https://www.runoob.com/jsref/event-onfocusout.html) | 元素即将失去焦点时触发                                       |
@@ -870,6 +870,7 @@ window-->history
 window-->screen
 ```
 
+*  BOM编程是将浏览器窗口各个部分抽象成各个对象，通过各种对象的API操作组件行为的一种编程
 *  window对象是一个全局对象，也可以说是JavaScript中的顶级对象
 * 像document、alert()、console.log()这些都是window的属性，基本BOM的属性和方法都是window的
 * 所有通过var定义在全局作用域中的变量、函数都会变成window对象的属性和方法

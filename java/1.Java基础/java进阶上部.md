@@ -868,13 +868,6 @@ public class demo4 {
         map.put("郭靖", "穆念慈");
         map.put("欧阳克", "黄蓉");
 
-//        map.forEach(new BiConsumer<String, String>() {
-//            @Override
-//            public void accept(String k, String v) {
-//                System.out.println(k + " " + v);
-//            }
-//        });
-
         //forEach底层就是利用键值对的方式进行遍历，一次得到每一个键和值，在调用accept方法
         map.forEach((k, v) -> System.out.println(k + " " + v));
     }
@@ -956,8 +949,6 @@ public class demo3 {
         Map<String, String> map = Map.copyOf(hm);
 
         System.out.println(map);
-
-
     }
 }
 

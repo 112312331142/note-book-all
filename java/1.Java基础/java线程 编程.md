@@ -569,7 +569,9 @@ public class demo {
 
 CPU密集型运算：最大并行数+1
 
-I/O密集型计算:最大并行数 * 期望CPU利用率 * （CPU计算时间+等待时间） / CPU计算时间
+I/O密集型计算：最大并行数 * 期望CPU利用率 * （CPU计算时间+等待时间） / CPU计算时间
+
+
 
 ## 二、网络编程
 
@@ -577,7 +579,7 @@ I/O密集型计算:最大并行数 * 期望CPU利用率 * （CPU计算时间+等
 
 在网络通信协议上，不同计算机上运行的程序，进行的数据传输
 
-java中可以使用java.net包下的技术轻松开发出常见的网络应用程序
+**java中可以使用java.net包下的技术轻松开发出常见的网络应用程序**
 
 常见的软件架构：
 
@@ -622,6 +624,25 @@ InetAddress类的使用
 | String getHostName()                      | 获取此IP地址的主机名                                         |
 | String getHostAddress                     | 返回文本显示中的IP地址字符串                                 |
 
+特殊IP地址：
+
+127.0.0.1，也可以是localhost:是回送地址也成本地回环地址，也称本机IP，永远只会寻找当前所在本机
+
+```java
+public class Demo1 {
+
+    public static void main(String[] args) throws UnknownHostException {
+        // address表示ip的对象 一台电脑的对象
+        InetAddress address = InetAddress.getByName("chen");
+        System.out.println(address);
+
+        System.out.println(address.getHostName());
+        String hostAddress = address.getHostAddress();
+        System.out.println(hostAddress);
+    }
+}
+```
+
 #### 2.2.2 端口号
 
 应用程序在设备中唯一的标识
@@ -651,7 +672,7 @@ TCP协议：
 
 - 传输控制协议（Transmission Control Protocol）
 
-- UDP是面向连接通信协议
+- TCP是面向连接通信协议
 
   速度慢，没有大小限制，数据安全
 
@@ -720,6 +741,7 @@ public class demo3 {
 //        2. 接收打包好的数据（DatagramPacket）
         byte[] bytes = new byte[1024];
         DatagramPacket dp = new DatagramPacket(bytes, bytes.length);
+        
         //该方法是阻塞的，
         //程序执行到这一步的时候，会在这里死等
         //等发送端发送消息
@@ -813,11 +835,13 @@ public class ReceiveMessage {
 
 1. 单播：以前的代码就是单播
 
-2. 组播：组播地址：224.0.0.0-239.255.255.255
+2. 组播：向局域网下的一组电脑发送数据
 
-   ​			       其中224.0.0.0-224.0.0.255为预留的组播地址
+   组播地址：224.0.0.0-239.255.255.255，其中224.0.0.0-224.0.0.255为预留的组播地址
 
-3. 广播：广播地址：255.255.255.255
+3. 广播：向所有电脑发送数据
+
+   广播地址：255.255.255.255
 
 ### 2.4 TCP通信协议
 
@@ -842,12 +866,6 @@ TCP通信协议是一种可靠的网络协议，它在通信的两端各建立�
    `void close()` 
 
 ```java
-package Net;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.Socket;
-
 public class Client {
     public static void main(String[] args) throws IOException {
         //在创建对象的同时会连接服务器,如果连接不上,代码会报错
@@ -881,15 +899,6 @@ public class Client {
    `void close()` 
 
 ```java
-package Net;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.ServerSocket;
-import java.net.Socket;
-
 public class Server {
     public static void main(String[] args) throws IOException {
         ServerSocket ss = new ServerSocket(10086);
@@ -914,23 +923,25 @@ public class Server {
 
 #### 2.4.3 三次握手与四次挥手
 
+ICMP协议
+
 三次握手：确保连接建立
 
-四次握手：确保连接断开，且数据处理完毕
+四次挥手：确保连接断开，且数据处理完毕
+
+
 
 ## 三、反射
 
-反射允许对成员变量，成员方法和构造方法的信息进行编程访问
+反射允许对成员变量，成员方法和构造方法的信息进行编程访问(获取/解剖)
 
 ### 3.1 获取class对象的三种方式
 
-* Class.forName("全类名");
-* 类名.class
-* 对象.getClass();
+* Class.forName("全类名") 源代码阶段
+* 类名.class 加载阶段
+* 对象.getClass(); 运行阶段
 
 ```java
-package reflect;
-
 public class demo1 {
     public static void main(String[] args) throws ClassNotFoundException {
         // 1.第一种方式---最为常用的
@@ -972,6 +983,88 @@ Constructor类中用于创建对象的方法：
 | T newInstance(Object...initargs) | 根据指定的构造方法创建对象              |
 | setAccessible(boolean flag)      | 暴力反射，flag=true时，临时取消权限检验 |
 
+```java
+package web.reflect;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+
+/**
+ * 反射演示类，用于展示如何获取和使用类的构造器信息
+ */
+public class Demo2 {
+
+    /**
+     * 主方法，演示反射获取构造器信息和实例化对象
+     * @param args 命令行参数
+     * @throws ClassNotFoundException 当指定的类未找到时抛出
+     * @throws NoSuchMethodException 当指定的方法未找到时抛出
+     * @throws InvocationTargetException 当目标方法抛出异常时抛出
+     * @throws InstantiationException 当尝试创建抽象类或接口的实例时抛出
+     * @throws IllegalAccessException 当访问控制阻止访问时抛出
+     */
+    public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        // 加载Student类
+        Class<?> clazz = Class.forName("web.reflect.Student");
+        
+        // 获取所有公共构造器
+        Constructor<?>[] cons1 = clazz.getConstructors();
+        for (Constructor<?> con : cons1) {
+            System.out.println(con);
+        }
+        
+        // 分隔符
+        System.out.println("------------------------");
+        
+        // 获取所有声明的构造器，包括公共、保护、默认和私有构造器
+        Constructor<?>[] cons2 = clazz.getDeclaredConstructors();
+        for (Constructor<?> con : cons2) {
+            System.out.println(con);
+        }
+        
+        // 分隔符
+        System.out.println("------------------------");
+        
+        // 获取无参数的公共构造器
+        Constructor<?> con1 = clazz.getConstructor();
+        System.out.println(con1);
+        
+        // 分隔符
+        System.out.println("------------------------");
+        
+        // 获取一个参数的构造器，参数为String类型
+        Constructor<?> con2 = clazz.getDeclaredConstructor(String.class);
+        System.out.println(con2);
+        
+        // 分隔符
+        System.out.println("------------------------");
+        
+        // 获取两个参数的构造器，参数为String和int类型
+        Constructor<?> con3 = clazz.getDeclaredConstructor(String.class, int.class);
+        // 打印构造器的名称
+        System.out.println(con3.getName());
+        // 打印构造器的修饰符
+        System.out.println(con3.getModifiers());
+        // 打印构造器的参数列表
+        System.out.println(Arrays.toString(con3.getParameters()));
+        // 打印构造器的参数类型列表
+        System.out.println(Arrays.toString(con3.getParameterTypes()));
+        
+        // 设置构造器可访问，即使它是私有的
+        con3.setAccessible(true);
+        
+        // 使用反射调用构造器创建Student实例
+        Student stu = (Student) con3.newInstance("高鑫", 12);
+        // 打印创建的Student实例
+        System.out.println(stu);
+    }
+}
+
+```
+
+
+
 ### 3.3 反射获取构造成员变量
 
 Class类中用于获取成员变量的方法：
@@ -989,6 +1082,44 @@ Field类中用于创建对象的方法：
 | --------------------------------- | ------ |
 | void set(Object obj,Object value) | 赋值   |
 | Object get(Object obj)            | 获取值 |
+
+````java
+package web.reflect;
+
+import java.lang.reflect.Field;
+
+public class Demo3 {
+
+    public static void main(String[] args) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+        Class<?> clazz = Class.forName("web.reflect.Student");
+        Field[] fields1 = clazz.getFields();
+        for (Field field : fields1) {
+            System.out.println(field);
+        }
+        System.out.println("------------------------");
+        Field[] fields2 = clazz.getDeclaredFields();
+        for (Field field : fields2) {
+            System.out.println(field);
+        }
+        System.out.println("---------------------------");
+        System.out.println(clazz.getField("grade"));
+        System.out.println(clazz.getDeclaredField("name"));
+        Field tel = clazz.getDeclaredField("tel");
+        System.out.println(tel);
+        System.out.println("------------------------------");
+        System.out.println(tel.getModifiers());
+        System.out.println(tel.getType());
+        Student stu = new Student("高鑫", 12,90,"wuhan","7572572414");
+        tel.setAccessible(true);
+        System.out.println(tel.get(stu));
+        tel.set(stu, "15349840569");
+        System.out.println(stu.getTel());
+    }
+}
+
+````
+
+
 
 ### 3.4 反射获取成员方法
 
@@ -1010,6 +1141,40 @@ Method类中用于创建对象的方法：
 参数二：调用方法的传递的参数（如果没有就不写）
 
 返回值：方法的返回值（如果没有就不写）
+
+```java
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+
+public class Demo4 {
+
+    public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Class<?> clazz = Class.forName("web.reflect.Student");
+        Method[] methods = clazz.getMethods();
+        for (Method method : methods) {
+            System.out.println(method);
+        }
+        System.out.println("------------------------");
+        Method eat = clazz.getDeclaredMethod("eat",String.class);
+        System.out.println(eat);
+        System.out.println(eat.getName());
+        System.out.println(Arrays.toString(eat.getParameters()));
+        System.out.println(eat.getModifiers());
+        System.out.println(Arrays.toString(eat.getExceptionTypes()));
+        System.out.println("------------------------");
+        eat.setAccessible(true);
+        Student s = new Student();
+        Object res = eat.invoke(s, "pizza");
+        System.out.println(res.toString());
+    }
+}
+
+```
+
+
+
+
 
 ### 3.5 反射的作用
 
@@ -1087,52 +1252,6 @@ hobby=睡觉
 ```properties
 classname=reflect.Student1
 method=study
-```
-
-Student1对象：
-
-```java
-package reflect;
-
-public class Student1 {
-    private String name;
-    private int age;
-
-    public Student1(){}
-
-    public Student1(String name, int age) {
-        this.name = name;
-        this.age = age;
-    }
-
-    public void study(){
-        System.out.println("学生在学习！");
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    @Override
-    public String toString() {
-        return "Student1{" +
-                "name='" + name + '\'' +
-                ", age=" + age +
-                '}';
-    }
-}
 ```
 
 ```java
@@ -1274,7 +1393,6 @@ package dynamicproxy;
  * 类的作用：
  *      就是创建一个代理
  */
-
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -1430,7 +1548,7 @@ public class Test {
 
   代码运行结果如下：
 
-  <img src="../../../../%E4%B8%8B%E8%BD%BD%E7%9A%84%E6%96%87%E4%BB%B6/%E8%B5%84%E6%96%99-ja%20va%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%EF%BC%88%E5%9B%BE%E8%A7%A3+%E6%A1%86%E6%9E%B6%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90+%E5%AE%9E%E6%88%98%EF%BC%89/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%B5%84%E6%96%99day06/%E7%AC%94%E8%AE%B0/img/image-20200429165544151.png" style="zoom:60%;" />
+  <img src="img/image-20200429165544151.png" style="zoom:60%;" />
 
 通过上面代码及结果可以看出：
 
