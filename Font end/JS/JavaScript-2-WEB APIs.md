@@ -10,7 +10,7 @@ DOM（Document Object Model--文档对象模型）是用来呈现以及与任意
 
 DOM作用：开发网页内容特效和实现用户交互
 
-**DOM树**：
+**DOM树**：逻辑上是一种属性结构
 
 * 将HTML文档以树状结构直观的表现出来，称之为文档树或DOM树
 * 描述网页内容关系的名词
@@ -18,7 +18,7 @@ DOM作用：开发网页内容特效和实现用户交互
 
 ![](images\web-api.jpg)
 
-**DOM对象**：浏览器根据html标签生成的JS对象
+**DOM对象**：浏览器根据html标签生成的JS对象，浏览器上展示document生成的对象
 
 * 所有的标签属性都可以在这个对象上面找到
 * 修改这个对象的属性会自动映射到标签身上
@@ -62,29 +62,37 @@ document对象：
 #### 1.2.2 其他获取DOM元素方法（了解）
 
 ```html
-<script>
-//根据id来获取第一个元素
-document.getElementById('nav')
-//根据 标签获取第一类元素 获取页面 所有div
-document.getElementByTagName('div')
-//根据 类名获取元素 获取页面 所有类名为w的
-document.getElementByClassName('w')
-</script>
+    <script>
+        function fun1() {
+            let ele1 = document.getElementById("username");
+            console.log(ele1);
+        }
+        function fun2() {
+            let ele = document.getElementsByTagName("input")
+            console.log(ele);
+            for (let index = 0; index < ele.length; index++) {
+                const element = ele[index];
+                console.log(ele[index]);
+            }
+        }
+        function fun3() {
+            let eles = document.getElementsByName("aaa")
+            eles.forEach(i => console.log(i));
+            console.log(eles);
+        }
+        function fun4() {
+            let eles = document.getElementsByClassName("a")
+            console.log(eles);
+        }
+    </script>
 ```
 
 ### 1.3 操作元素内容
 
-* 对象.innerText属性：
+* 对象.innerText属性：将文本内容添加/更新到任意标签位置、显示纯文本，不解析标签
 
-将文本内容添加/更新到任意标签位置
 
-显示纯文本，不解析标签
-
-* 对象.innerHTML属性：
-
-将文本内容添加/更新到任意标签位置
-
-会解析标签，多标签建议使用模板字符
+* 对象.innerHTML属性：将文本内容添加/更新到任意标签位置、会解析标签，多标签建议使用模板字符
 
 ### 1.4 操作元素属性
 
@@ -785,6 +793,8 @@ DOM节点：
 
   childeren属性：仅获得所有元素节点，返回的还是一个伪数组
 
+  firstElementChild、parentElementChild：获取第一个或最后一个子元素
+
   ```javascript
   父元素.children
   ```
@@ -839,6 +849,12 @@ DOM节点：
 
 * 把复制的节点放入到指定的元素内部
 
+替换节点:
+
+```js
+cities.replaceChild(newEle, oldEle)
+```
+
 #### 3.2.4 删除节点
 
 在JavaScript原生DOM操作中，要删除元素必须通过父元素删除
@@ -861,20 +877,132 @@ DOM节点：
 BOM（Browser Object Model）是浏览器对象模型
 
 ```mermaid
-graph TB
+graph LR
 BOM-浏览器对象模型
 window-->navigator
 window-->location
 window-->document
 window-->history
 window-->screen
+window-->console
+window-->sessionStorage会话级存储
+window-->localStorage持久级存储
 ```
 
 *  BOM编程是将浏览器窗口各个部分抽象成各个对象，通过各种对象的API操作组件行为的一种编程
 *  window对象是一个全局对象，也可以说是JavaScript中的顶级对象
 * 像document、alert()、console.log()这些都是window的属性，基本BOM的属性和方法都是window的
 * 所有通过var定义在全局作用域中的变量、函数都会变成window对象的属性和方法
-* window对象下的属性和方法调用的时候可以省略window
+*  window对象下的属性和方法调用的时候可以省略window
+
+#### 4.1.1 window对象常见API
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script>
+        /*
+        window 是由浏览器提供给使用的
+            三种弹窗任务：alert、prompt、confirm
+        定时任务
+        */
+        function fun1() {
+            window.alert("hello js")
+        }
+        function fun2() {
+            var res = window.prompt("hello js")
+            console.log(res);
+        }
+        function fun3() {
+            var res = window.confirm("hello js")
+            console.log(res);
+        }
+        function fun4() {
+            window.setTimeout(function () {
+                console.log("hello");
+            }, 2000)
+        }
+    </script>
+</head>
+
+<body>
+    <button onclick="fun1()">message hint</button>
+    <button onclick="fun2()">message input</button>
+    <button onclick="fun3()">message confirm</button>
+    <button onclick="fun4()">after 2 seconds to the console print the hello</button>
+</body>
+
+</html>
+```
+
+#### 4.1.2 window对象常见属性
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script>
+        /*
+        history 窗口的访问历史
+        sessionStorage 用于存储会话级数据（浏览器关闭会清除）
+        localStorage 用于存储一些持久级数据
+        */
+        function fun1() {
+            history.forward()
+        }
+
+        function fun2() {
+            history.back();
+        }
+
+        function fun3() {
+            location.href = "https://github.com"
+        }
+
+        function fun4() {
+            // to sessionStorage/localStorage中 store data
+            sessionStorage.setItem("gaoxin", "valueA")
+            localStorage.setItem("yefan", "valueB")
+        }
+
+        function fun5() {
+            console.log(sessionStorage.getItem("gaoxin"))
+            console.log(localStorage.getItem("yefan"))
+        }
+
+        function fun6() {
+            sessionStorage.removeItem("gaoxin")
+            localStorage.removeItem("yefan")
+        }
+
+    </script>
+</head>
+
+<body>
+    <button onclick="fun4()">存储数据</button>
+    <button onclick="fun5()">读取数据</button>
+    <button onclick="fun6()">清空数据</button>
+    <br>
+    <button onclick="fun3()">GitHub</button>
+    <br>
+    <button onclick="fun1()">访问下一面</button>
+    <button onclick="fun2()">访问上一面</button>
+    <a href="https://www.baidu.com">百度</a>
+</body>
+
+</html>
+```
 
 ### 4.2  JS执行机制
 
@@ -959,6 +1087,70 @@ history数据类型时对象，主要管理历史记录，该对象与浏览器�
 
 history对象一般再实际开发中比较少用，但是会在一些OA办公系统中见到
 
+### 4.6 window对象的常见属性(了解)
+
+| 属性                                                         | 描述                                                         |
+| :----------------------------------------------------------- | :----------------------------------------------------------- |
+| [closed](https://www.runoob.com/jsref/prop-win-closed.html)  | 返回窗口是否已被关闭。                                       |
+| [defaultStatus](https://www.runoob.com/jsref/prop-win-defaultstatus.html) | 设置或返回窗口状态栏中的默认文本。                           |
+| [document](https://www.runoob.com/jsref/dom-obj-document.html) | 对 Document 对象的只读引用。(请参阅[对象](https://www.runoob.com/jsref/dom-obj-document.html)) |
+| [frames](https://www.runoob.com/jsref/prop-win-frames.html)  | 返回窗口中所有命名的框架。该集合是 Window 对象的数组，每个 Window 对象在窗口中含有一个框架。 |
+| [history](https://www.runoob.com/jsref/obj-history.html)     | 对 History 对象的只读引用。请参数 [History 对象](https://www.runoob.com/jsref/obj-history.html)。 |
+| [innerHeight](https://www.runoob.com/jsref/prop-win-innerheight.html) | 返回窗口的文档显示区的高度。                                 |
+| [innerWidth](https://www.runoob.com/jsref/prop-win-innerheight.html) | 返回窗口的文档显示区的宽度。                                 |
+| [localStorage](https://www.runoob.com/jsref/prop-win-localstorage.html) | 在浏览器中存储 key/value 对。没有过期时间。                  |
+| [length](https://www.runoob.com/jsref/prop-win-length.html)  | 设置或返回窗口中的框架数量。                                 |
+| [location](https://www.runoob.com/jsref/obj-location.html)   | 用于窗口或框架的 Location 对象。请参阅 [Location 对象](https://www.runoob.com/jsref/obj-location.html)。 |
+| [name](https://www.runoob.com/jsref/prop-win-name.html)      | 设置或返回窗口的名称。                                       |
+| [navigator](https://www.runoob.com/jsref/obj-navigator.html) | 对 Navigator 对象的只读引用。请参数 [Navigator 对象](https://www.runoob.com/jsref/obj-navigator.html)。 |
+| [opener](https://www.runoob.com/jsref/prop-win-opener.html)  | 返回对创建此窗口的窗口的引用。                               |
+| [outerHeight](https://www.runoob.com/jsref/prop-win-outerheight.html) | 返回窗口的外部高度，包含工具条与滚动条。                     |
+| [outerWidth](https://www.runoob.com/jsref/prop-win-outerheight.html) | 返回窗口的外部宽度，包含工具条与滚动条。                     |
+| [pageXOffset](https://www.runoob.com/jsref/prop-win-pagexoffset.html) | 设置或返回当前页面相对于窗口显示区左上角的 X 位置。          |
+| [pageYOffset](https://www.runoob.com/jsref/prop-win-pagexoffset.html) | 设置或返回当前页面相对于窗口显示区左上角的 Y 位置。          |
+| [parent](https://www.runoob.com/jsref/prop-win-parent.html)  | 返回父窗口。                                                 |
+| [screen](https://www.runoob.com/jsref/obj-screen.html)       | 对 Screen 对象的只读引用。请参数 [Screen 对象](https://www.runoob.com/jsref/obj-screen.html)。 |
+| [screenLeft](https://www.runoob.com/jsref/prop-win-screenleft.html) | 返回相对于屏幕窗口的x坐标                                    |
+| [screenTop](https://www.runoob.com/jsref/prop-win-screenleft.html) | 返回相对于屏幕窗口的y坐标                                    |
+| [screenX](https://www.runoob.com/jsref/prop-win-screenx.html) | 返回相对于屏幕窗口的x坐标                                    |
+| [sessionStorage](https://www.runoob.com/jsref/prop-win-sessionstorage.html) | 在浏览器中存储 key/value 对。 在关闭窗口或标签页之后将会删除这些数据。 |
+| [screenY](https://www.runoob.com/jsref/prop-win-screenx.html) | 返回相对于屏幕窗口的y坐标                                    |
+| [self](https://www.runoob.com/jsref/prop-win-self.html)      | 返回对当前窗口的引用。等价于 Window 属性。                   |
+| [status](https://www.runoob.com/jsref/prop-win-status.html)  | 设置窗口状态栏的文本。                                       |
+| [top](https://www.runoob.com/jsref/prop-win-top.html)        | 返回最顶层的父窗口。                                         |
+
+### 4.7 window对象的常见方法(了解)
+
+| 方法                                                         | 描述                                                         |
+| :----------------------------------------------------------- | :----------------------------------------------------------- |
+| [alert()](https://www.runoob.com/jsref/met-win-alert.html)   | 显示带有一段消息和一个确认按钮的警告框。                     |
+| [atob()](https://www.runoob.com/jsref/met-win-atob.html)     | 解码一个 base-64 编码的字符串。                              |
+| [btoa()](https://www.runoob.com/jsref/met-win-btoa.html)     | 创建一个 base-64 编码的字符串。                              |
+| [blur()](https://www.runoob.com/jsref/met-win-blur.html)     | 把键盘焦点从顶层窗口移开。                                   |
+| [clearInterval()](https://www.runoob.com/jsref/met-win-clearinterval.html) | 取消由 setInterval() 设置的 timeout。                        |
+| [clearTimeout()](https://www.runoob.com/jsref/met-win-cleartimeout.html) | 取消由 setTimeout() 方法设置的 timeout。                     |
+| [close()](https://www.runoob.com/jsref/met-win-close.html)   | 关闭浏览器窗口。                                             |
+| [confirm()](https://www.runoob.com/jsref/met-win-confirm.html) | 显示带有一段消息以及确认按钮和取消按钮的对话框。             |
+| [createPopup()](https://www.runoob.com/jsref/met-win-createpopup.html) | 创建一个 pop-up 窗口。                                       |
+| [focus()](https://www.runoob.com/jsref/met-win-focus.html)   | 把键盘焦点给予一个窗口。                                     |
+| [getSelection](https://www.runoob.com/jsref/met-win-getselection.html)() | 返回一个 Selection 对象，表示用户选择的文本范围或光标的当前位置。 |
+| [getComputedStyle()](https://www.runoob.com/jsref/jsref-getcomputedstyle.html) | 获取指定元素的 CSS 样式。                                    |
+| [matchMedia()](https://www.runoob.com/jsref/met-win-matchmedia.html) | 该方法用来检查 media query 语句，它返回一个 MediaQueryList对象。 |
+| [moveBy()](https://www.runoob.com/jsref/met-win-moveby.html) | 可相对窗口的当前坐标把它移动指定的像素。                     |
+| [moveTo()](https://www.runoob.com/jsref/met-win-moveto.html) | 把窗口的左上角移动到一个指定的坐标。                         |
+| [open()](https://www.runoob.com/jsref/met-win-open.html)     | 打开一个新的浏览器窗口或查找一个已命名的窗口。               |
+| [print()](https://www.runoob.com/jsref/met-win-print.html)   | 打印当前窗口的内容。                                         |
+| [prompt()](https://www.runoob.com/jsref/met-win-prompt.html) | 显示可提示用户输入的对话框。                                 |
+| [resizeBy()](https://www.runoob.com/jsref/met-win-resizeby.html) | 按照指定的像素调整窗口的大小。                               |
+| [resizeTo()](https://www.runoob.com/jsref/met-win-resizeto.html) | 把窗口的大小调整到指定的宽度和高度。                         |
+| scroll()                                                     | 已废弃。 该方法已经使用了 [scrollTo()](https://www.runoob.com/jsref/met-win-scrollto.html) 方法来替代。 |
+| [scrollBy()](https://www.runoob.com/jsref/met-win-scrollby.html) | 按照指定的像素值来滚动内容。                                 |
+| [scrollTo()](https://www.runoob.com/jsref/met-win-scrollto.html) | 把内容滚动到指定的坐标。                                     |
+| [setInterval()](https://www.runoob.com/jsref/met-win-setinterval.html) | 按照指定的周期（以毫秒计）来调用函数或计算表达式。           |
+| [setTimeout()](https://www.runoob.com/jsref/met-win-settimeout.html) | 在指定的毫秒数后调用函数或计算表达式。                       |
+| [stop()](https://www.runoob.com/jsref/met-win-stop.html)     | 停止页面载入。                                               |
+| [postMessage()](https://www.runoob.com/jsref/met-win-postmessage.html) | 安全地实现跨源通信。                                         |
+
 
 
 ## 五、本地存储
@@ -1024,6 +1216,8 @@ history对象一般再实际开发中比较少用，但是会在一些OA办公�
 2. 把JSON字符串转换为对象
 
    `JSON.parse(JSON字符串)`
+
+   ​
 
 
 

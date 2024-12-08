@@ -743,6 +743,8 @@ create view stu_v_count as select count(*) from student;
 
 视图可帮助用户屏蔽真实表结构变化带来的影响。
 
+
+
 ## 五、存储过程
 
 ### 5.1 介绍
