@@ -766,7 +766,7 @@ SpringBoot提供了多种属性配置方式
 
 常见配置文件格式对比：
 
-![件配置格式](C:\downFile\笔记本\java\img\%E6%96%87%E4%BB%B6%E9%85%8D%E7%BD%AE%E6%A0%BC%E5%BC%8F%E6%AF%94.png)
+![件配置格式](img\%E6%96%87%E4%BB%B6%E9%85%8D%E7%BD%AE%E6%A0%BC%E5%BC%8F%E6%AF%94.png)
 
 yml基本语法：
 

@@ -186,9 +186,9 @@ public class UserServlet extends HttpServlet {
 
 
 
-# 三 Servlet注解方式配置
+## 二 Servlet注解方式配置
 
-## 3.1 @WebServlet注解源码
+### 2.1 @WebServlet注解源码
 
 > 官方JAVAEEAPI文档下载地址
 
@@ -280,7 +280,7 @@ public @interface WebServlet {
 
 ```
 
-## 3.2 @WebServlet注解使用
+### 2.2 @WebServlet注解使用
 
 > 使用@WebServlet注解替换Servlet配置
 
@@ -313,9 +313,9 @@ public class UserServlet  extends HttpServlet {
 
 
 
-# 四 Servlet生命周期
+## 三 Servlet生命周期
 
-## 4.1 生命周期简介
+### 3.1 生命周期简介
 
 > 什么是Servlet的生命周期
 
@@ -335,7 +335,7 @@ public class UserServlet  extends HttpServlet {
 | 处理服务 | service(HttpServletRequest req,HttpServletResponse resp) | 每次请求               | 多次     |
 | 销毁     | destory()                                                | 容器关闭               | 1        |
 
-## 4.2 生命周期测试
+### 3.2 生命周期测试
 
 > 开发servlet代码
 
@@ -381,6 +381,7 @@ public class ServletLifeCycle  extends HttpServlet {
         <!--load-on-startup
             如果配置的是正整数则表示容器在启动时就要实例化Servlet,
             数字表示的是实例化的顺序
+		   -1表示tomcat启动时不会自动实例化该Servlet
         -->
         <load-on-startup>1</load-on-startup>
     </servlet>
@@ -390,27 +391,23 @@ public class ServletLifeCycle  extends HttpServlet {
     </servlet-mapping>
 ```
 
-
-
 - 请求Servlet测试
 
-略
-
-## 4.3 生命周期总结
+### 3.3 生命周期总结
 
 1. 通过生命周期测试我们发现Servlet对象在容器中是单例的
 2. 容器是可以处理并发的用户请求的,每个请求在容器中都会开启一个线程
 3. 多个线程可能会使用相同的Servlet对象,所以在Servlet中,我们不要轻易定义一些容易经常发生修改的成员变量
 4. load-on-startup中定义的正整数表示实例化顺序,如果数字重复了,容器会自行解决实例化顺序问题,但是应该避免重复
 5. Tomcat容器中,已经定义了一些随系统启动实例化的servlet,我们自定义的servlet的load-on-startup尽量不要占用数字1-5
+6. defaultServlet用来访问静态资源
 
-# 五 Servlet继承结构
 
-## 5.1 Servlet 接口
 
-> 源码及功能解释
 
-- 通过idea查看: 此处略
+## 四 Servlet继承结构
+
+### 4.1 Servlet 接口
 
 > 接口及方法说明
 
@@ -428,11 +425,7 @@ public class ServletLifeCycle  extends HttpServlet {
   - public void destroy();
     - Servlet实例在销毁之前调用的方法
 
-## 5.2 GenericServlet 抽象类
-
-> 源码
-
-- 通过idea查看: 此处略
+### 4.2 GenericServlet 抽象类
 
 > 源码解释
 
@@ -465,11 +458,7 @@ public class ServletLifeCycle  extends HttpServlet {
   - public String getServletName() 
     - 获取ServletName的方法
 
-## 5.3 HttpServlet 抽象类
-
-> 源码
-
-- 通过idea查看: 此处略
+### 5.3 HttpServlet 抽象类
 
 > 解释
 
@@ -501,26 +490,29 @@ public class ServletLifeCycle  extends HttpServlet {
     - 对应不同请求方式的处理方法
     - 除了doOptions和doTrace方法,其他的do*** 方法都在故意响应错误信息
 
-## 5.4 自定义Servlet
+### 5.4 自定义Servlet
 
 > 继承关系图解
 
-![1682299663047](../../../../BaiduNetdiskDownload/images/1682299663047.png)
+![1682299663047](img/1682299663047.png)
 
 - 自定义Servlet中,必须要对处理请求的方法进行重写
   - 要么重写service方法
   - 要么重写doGet/doPost方法
 
-# 六 ServletConfig和ServletContext
 
-## 6.1  ServletConfig的使用
+
+
+## 五 ServletConfig和ServletContext
+
+### 5.1  ServletConfig的使用
 
 > ServletConfig是什么
 
 - 为Servlet提供初始配置参数的一种对象,每个Servlet都有自己独立唯一的ServletConfig对象
 - 容器会为每个Servlet实例化一个ServletConfig对象,并通过Servlet生命周期的init方法传入给Servlet作为属性
 
-<img src="../../../../BaiduNetdiskDownload/images/1682302307081.png" alt="1682302307081"  />
+<img src="img/1682302307081.png" alt="1682302307081"  />
 
 > ServletConfig是一个接口,定义了如下API
 
@@ -630,7 +622,7 @@ public class ServletB extends HttpServlet {
 
 略
 
-## 6.2 ServletContext的使用
+### 5.2 ServletContext的使用
 
 > ServletContext是什么
 
@@ -639,7 +631,7 @@ public class ServletB extends HttpServlet {
 - ServletContext对象为所有的Servlet所共享
 - ServletContext可以为所有的Servlet提供初始配置参数
 
-![1682303205351](../../../../BaiduNetdiskDownload/images/1682303205351.png)
+![1682303205351](img/1682303205351.png)
 
 > ServletContext怎么用
 
@@ -697,7 +689,7 @@ public class ServletA extends HttpServlet {
 }
 ```
 
-## 6.3 ServletContext其他重要API
+### 5.3 ServletContext其他重要API
 
 > 获取资源的真实路径
 
@@ -728,9 +720,9 @@ String contextPath = servletContext.getContextPath();
 | Object getAttribute(String key);            | 获得域中的数据      |
 | void removeAttribute(String key);           | 移除域中的数据      |
 
-# 七 HttpServletRequest
+## 六 HttpServletRequest
 
-## 7.1 HttpServletRequest简介
+### 6.1 HttpServletRequest简介
 
 > HttpServletRequest是什么
 
@@ -738,9 +730,9 @@ String contextPath = servletContext.getContextPath();
 - HttpServletRequest是Tomcat将请求报文转换封装而来的对象,在Tomcat调用service方法时传入
 - HttpServletRequest代表客户端发来的请求,所有请求中的信息都可以通过该对象获得
 
-![1681699577344](../../../../BaiduNetdiskDownload/images/1681699577344.png)
+![1681699577344](img/1681699577344.png)
 
-## 7.2 HttpServletRequest常见API
+### 6.2 HttpServletRequest常见API
 
 > HttpServletRequest怎么用
 
@@ -779,17 +771,17 @@ String contextPath = servletContext.getContextPath();
 
 - 其他API
 
-| API                                          | 功能解释                    |
-| -------------------------------------------- | --------------------------- |
-| String getServletPath();                     | 获取请求的Servlet的映射路径 |
-| ServletContext getServletContext();          | 获取ServletContext对象      |
-| Cookie[] getCookies();                       | 获取请求中的所有cookie      |
-| HttpSession getSession();                    | 获取Session对象             |
-| void setCharacterEncoding(String encoding) ; | 设置请求体字符集            |
+| API                                         | 功能解释                    |
+| ------------------------------------------- | --------------------------- |
+| String getServletPath();                    | 获取请求的Servlet的映射路径 |
+| ServletContext getServletContext();         | 获取ServletContext对象      |
+| Cookie[] getCookies();                      | 获取请求中的所有cookie      |
+| HttpSession getSession();                   | 获取Session对象             |
+| void setCharacterEncoding(String encoding); | 设置请求体字符集            |
 
-# 八 HttpServletResponse
+## 七 HttpServletResponse
 
-## 8.1 HttpServletResponse简介
+### 7.1 HttpServletResponse简介
 
 > HttpServletResponse是什么
 
@@ -797,9 +789,9 @@ String contextPath = servletContext.getContextPath();
 - HttpServletResponse是Tomcat预先创建的,在Tomcat调用service方法时传入
 - HttpServletResponse代表对客户端的响应,该对象会被转换成响应的报文发送给客户端,通过该对象我们可以设置响应信息
 
-![1681699577344](../../../../BaiduNetdiskDownload/images/1681699577344.png)
+![1681699577344](img/1681699577344.png)
 
-## 8.2 HttpServletResponse的常见API
+### 7.2 HttpServletResponse的常见API
 
 > HttpServletRequest怎么用
 
@@ -852,22 +844,22 @@ String contextPath = servletContext.getContextPath();
 
 
 
-# 九 请求转发和响应重定向
+## 八 请求转发和响应重定向
 
-## 9.1 概述
+### 9.1 概述
 
 > 什么是请求转发和响应重定向
 
 - 请求转发和响应重定向是web应用中间接访问项目资源的两种手段,也是Servlet控制页面跳转的两种手段
 - 请求转发通过HttpServletRequest实现,响应重定向通过HttpServletResponse实现
 - 请求转发生活举例: 张三找李四借钱,李四没有,李四找王五,让王五借给张三
-- 响应重定向生活举例:张三找李四借钱,李四没有,李四让张三去找王五,张三自己再去找王五借钱
+- 响应重定向生活举例:张三找李四借钱,李四没有,李四让张三去找王五,张三自己再去找王五借钱!
 
-## 9.2 请求转发
+### 9.2 请求转发
 
 > 请求转发运行逻辑图
 
-![1682321228643](../../../../BaiduNetdiskDownload/images/1682321228643.png)
+![1682321228643](img/1682321228643.png)
 
 > 请求转发特点(背诵)
 
@@ -882,7 +874,7 @@ String contextPath = servletContext.getContextPath();
 
 > 请求转发测试代码
 
-![1682323740343](../../../../BaiduNetdiskDownload/images/1682323740343.png)
+![1682323740343](img/1682323740343.png)
 
 
 
